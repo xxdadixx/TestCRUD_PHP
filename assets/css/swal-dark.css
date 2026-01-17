@@ -1,0 +1,42 @@
+/* =========================
+   SweetAlert Dark Mode
+========================= */
+
+html.dark .swal2-popup {
+  background: #1f2937; /* gray-800 */
+  color: #f9fafb;
+}
+
+html.dark .swal2-title,
+html.dark .swal2-html-container {
+  color: #f9fafb;
+}
+
+html.dark .swal2-input,
+html.dark .swal2-select {
+  background-color: #111827;
+  color: #f9fafb;
+  border: 1px solid #374151;
+}
+
+html.dark .swal2-input::placeholder {
+  color: #9ca3af;
+}
+
+/* date / dropdown */
+html.dark input[type="date"],
+html.dark select {
+  color-scheme: dark;
+}
+
+/* validation message */
+.dark .swal2-validation-message {
+  background-color: #374151; /* gray-700 */
+  color: #f9fafb; /* gray-50 */
+  border-left: 4px solid #ef4444; /* red-500 */
+}
+
+/* icon inside validation */
+.dark .swal2-validation-message::before {
+  color: #ef4444;
+}
