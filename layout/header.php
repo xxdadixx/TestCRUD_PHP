@@ -26,11 +26,17 @@ $BASE_URL = $baseDir === '/' ? '' : $baseDir;
         }
     </script>
 
+    <!-- Lucide CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- SweetAlert Dark Mode -->
     <link rel="stylesheet" href="<?= $BASE_URL ?>/assets/css/swal-dark.css">
+
+    <!-- Table Sort Highligh -->
+    <link rel="stylesheet" href="<?= $BASE_URL ?>/assets/css/table.css">
 
     <!-- Global Base URL -->
     <script>
@@ -38,13 +44,14 @@ $BASE_URL = $baseDir === '/' ? '' : $baseDir;
     </script>
 </head>
 
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition">
-    <div class="container mx-auto mt-10">
-        <div class="flex justify-end mb-4">
-            <button id="toggleDark"
-                class="px-4 py-2 rounded
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition min-h-screen flex flex-col">
+    <main class="flex-grow">
+        <div class="container mx-auto mt-10 px-4 lg:px-6">
+            <div class="flex justify-end mb-4">
+                <button id="toggleDark"
+                    class="px-4 py-2 rounded
                 bg-gray-200 dark:bg-gray-700
                 text-gray-800 dark:text-gray-100">
-                🌙 Dark Mode
-            </button>
-        </div>
+                    🌙 Dark Mode
+                </button>
+            </div>

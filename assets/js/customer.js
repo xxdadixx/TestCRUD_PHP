@@ -2,6 +2,16 @@ const nameRegex = /^[A-Za-zก-ฮ\s]{2,50}$/;
 const nationalIdRegex = /^\d{13}$/;
 
 /* =========================
+   STATE (DECLARE ONCE)
+========================= */
+const urlParams = new URLSearchParams(window.location.search);
+
+let currentPage   = parseInt(urlParams.get('page')) || 1;
+let currentSearch = urlParams.get('search') || '';
+let currentSort   = urlParams.get('sort') || 'customer_id';
+let currentOrder  = urlParams.get('order') || 'ASC';
+
+/* =========================
    ADD CUSTOMER
 ========================= */
 function openAddCustomer() {
@@ -338,4 +348,200 @@ function allowNameOnly(input) {
         .replace(/\s+/g, ' ')           // เว้นวรรคซ้ำ
         .slice(0, 50);                  // จำกัดความยาว
 }
+
+/* =========================
+   CONFIG
+========================= */
+const API_URL = `${window.APP_BASE_URL}/customers/api/customer_fetch.php`;
+const tableBody = document.getElementById('tableBody');
+const searchInput = document.getElementById('searchInput');
+
+/* =========================
+   INIT
+========================= */
+document.addEventListener('DOMContentLoaded', () => {
+    loadCustomers(1);
+
+    // debounce search
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                currentSearch = e.target.value.trim();
+                loadCustomers(1);
+            }, 400);
+        });
+    }
+});
+
+/* =========================
+   FETCH DATA
+========================= */
+async function loadCustomers(page = 1) {
+    currentPage = page;
+
+    tableBody.innerHTML = `
+        <tr>
+            <td colspan="11" class="p-6 text-center text-gray-400">
+                Loading...
+            </td>
+        </tr>
+    `;
+
+    const params = new URLSearchParams({
+        page: currentPage,
+        search: currentSearch,
+        sort: currentSort,
+        order: currentOrder
+    });
+
+    try {
+        const res = await fetch(`${API_URL}?${params.toString()}`);
+        const data = await res.json();
+
+        renderTable(data.customers);
+        renderPagination(data.page, data.totalPages);
+        lucide.createIcons();
+
+    } catch (err) {
+        console.error(err);
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="11" class="p-6 text-center text-red-500">
+                    Failed to load data
+                </td>
+            </tr>
+        `;
+    }
+}
+
+/* =========================
+   RENDER TABLE
+========================= */
+function renderTable(customers) {
+    if (!customers || customers.length === 0) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="11" class="p-6 text-center text-gray-500">
+                    No customers found
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tableBody.innerHTML = customers.map((c, index) => `
+        <tr class="border-t border-gray-200 dark:border-gray-700
+                   hover:bg-blue-50 dark:hover:bg-gray-700 transition">
+            <td class="p-3 text-center">${index + 1}</td>
+            <td class="p-3">${c.customer_id}</td>
+            <td class="p-3">${c.customer_code}</td>
+            <td class="p-3">${c.name}</td>
+            <td class="p-3">${c.gender}</td>
+            <td class="p-3">${c.date_of_birth}</td>
+            <td class="p-3 font-mono">${c.national_id}</td>
+            <td class="p-3 text-center">
+                <span class="px-3 py-1 rounded-full text-sm
+                    ${c.status_name === 'Active'
+            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+            : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'}">
+                    ${c.status_name}
+                </span>
+            </td>
+            <td class="p-3">${c.create_at}</td>
+            <td class="p-3">${c.update_at}</td>
+            <td class="p-3 text-center">
+                <div class="flex justify-center gap-3">
+                    <button onclick="openEditCustomer(${c.customer_id})"
+                        class="p-2 rounded-lg text-blue-600 hover:bg-blue-600 hover:text-white">
+                        <i data-lucide="pencil" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="confirmDelete(${c.customer_id})"
+                        class="p-2 rounded-lg text-red-600 hover:bg-red-600 hover:text-white">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+/* =========================
+   PAGINATION
+========================= */
+function renderPagination(page, totalPages) {
+    const container = document.getElementById('pagination');
+    if (!container || totalPages <= 1) return;
+
+    container.innerHTML = '';
+
+    const createBtn = (label, targetPage, active = false, disabled = false) => {
+        const btn = document.createElement('button');
+        btn.textContent = label;
+
+        btn.className = `
+            px-3 py-1 rounded text-sm
+            ${active ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-700 dark:text-gray-200'}
+            ${disabled ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-500 hover:text-white'}
+        `;
+
+        if (!disabled) {
+            btn.onclick = () => loadCustomers(targetPage);
+        }
+
+        return btn;
+    };
+
+    /* ⏮ Prev */
+    container.appendChild(
+        createBtn('«', page - 1, false, page === 1)
+    );
+
+    const pages = new Set();
+
+    pages.add(1);
+    pages.add(totalPages);
+
+    for (let i = page - 1; i <= page + 1; i++) {
+        if (i > 1 && i < totalPages) {
+            pages.add(i);
+        }
+    }
+
+    const sortedPages = [...pages].sort((a, b) => a - b);
+
+    let lastPage = 0;
+
+    sortedPages.forEach(p => {
+        if (p - lastPage > 1) {
+            const dots = document.createElement('span');
+            dots.textContent = '...';
+            dots.className = 'px-2 text-gray-500';
+            container.appendChild(dots);
+        }
+
+        container.appendChild(
+            createBtn(p, p, p === page)
+        );
+
+        lastPage = p;
+    });
+
+    /* ⏭ Next */
+    container.appendChild(
+        createBtn('»', page + 1, false, page === totalPages)
+    );
+}
+
+function changeSort(column) {
+    if (currentSort === column) {
+        currentOrder = currentOrder === 'ASC' ? 'DESC' : 'ASC';
+    } else {
+        currentSort = column;
+        currentOrder = 'ASC';
+    }
+
+    loadCustomers(1);
+}
+
 
