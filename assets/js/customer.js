@@ -681,6 +681,7 @@ async function loadCustomers(page = 1) {
         search: currentSearch,
         sort: currentSort,
         order: currentOrder,
+        _t: Date.now()
     });
 
     try {
