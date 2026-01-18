@@ -617,6 +617,61 @@ div:where(.swal2-container) button:where(.swal2-styled).swal2-cancel {
 }
 
 .dark div:where(.swal2-container) button:where(.swal2-styled).swal2-cancel {
-    background-color: #3a3a3c !important; /* Dark Mode Gray */
+    background-color: #3a3a3c !important;
+    /* Dark Mode Gray */
     color: #ffffff !important;
+}
+
+/* 1. บังคับโครงสร้าง Fixed เพื่อให้ตารางนิ่งและ Resize ได้ลื่นไหล */
+table {
+    table-layout: fixed !important;
+    width: 100% !important;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+/* 2. หัวใจสำคัญ: สั่งให้ข้อความ "ขึ้นบรรทัดใหม่" ถ้าช่องแคบเกินไป */
+th,
+td {
+    white-space: normal !important;
+    /* ✅ อนุญาตให้ตัดคำขึ้นบรรทัดใหม่ */
+    word-break: break-word !important;
+    /* ✅ ถ้าคำยาวมาก (เช่น ID) ให้หักลงมาได้เลย */
+    overflow: visible !important;
+    /* ✅ โชว์ให้หมด ห้ามซ่อน */
+    text-overflow: clip !important;
+    /* ✅ ไม่เอา ... */
+
+    vertical-align: middle !important;
+    /* จัดกึ่งกลางแนวตั้ง */
+    padding: 12px 10px !important;
+    /* ระยะห่างภายใน */
+    line-height: 1.5;
+    /* ระยะห่างบรรทัดให้อ่านง่าย */
+}
+
+/* 3. ปล่อยให้ความสูงของแถว "ยืดขยายตามเนื้อหา" */
+tbody tr {
+    height: auto !important;
+}
+
+/* --- Resizer (ตัวลากปรับขนาด) --- */
+th .resizer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 4px;
+    height: 100%;
+    cursor: col-resize;
+    user-select: none;
+    touch-action: none;
+    z-index: 20;
+    background-color: transparent;
+}
+
+th .resizer:hover,
+.resizing {
+    background-color: #3b82f6;
+    /* สีฟ้า */
+    width: 4px;
 }

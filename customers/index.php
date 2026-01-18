@@ -43,8 +43,11 @@ $columnIndexMap = [
                 placeholder="Search..."
                 class="
                 /* Layout & Spacing */
-                pl-10 pr-12 py-2 rounded-full
+                pl-12 pr-12 rounded-full h-12
                 
+                /* 🔥 เพิ่ม h-12 เพื่อให้สูงเท่ากับความกว้าง (48px) เป็นวงกลมเป๊ะ */
+                /* 🔥 เปลี่ยน pl-10 เป็น pl-12 ให้พ้นระยะไอคอน */
+
                 /* Colors & Borders */
                 bg-white dark:bg-gray-800
                 border border-gray-200 dark:border-gray-700
@@ -55,12 +58,12 @@ $columnIndexMap = [
                 /* Focus State */
                 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500
                 
-                /* ✨ Animation Magic ✨ */
-                w-12 md:w-40               /* ปกติ: กว้างแค่นี้ (หุบ) */
-                focus:w-64 md:focus:w-96   /* ตอนกด: ยืดออก (ขยาย) */
-                cursor-pointer focus:cursor-text /* ให้รู้ว่ากดได้ */
-                transition-all duration-500 ease-in-out /* อนิเมชั่นนุ่มๆ */
-            "
+                /* Animation Magic */
+                w-12 md:w-40               
+                focus:w-64 md:focus:w-96   
+                cursor-pointer focus:cursor-text
+                transition-all duration-500 ease-in-out
+                "
                 onfocus="this.placeholder = 'Type to search customer...'"
                 onblur="this.placeholder = 'Search...'">
 
@@ -90,35 +93,64 @@ $columnIndexMap = [
         <div class="aurora-orb"></div>
         <div class="rounded-xl shadow bg-white dark:bg-gray-800 overflow-x-auto">
             <table class="min-w-full">
-                <thead class="bg-gray-200 dark:bg-gray-700">
-                    <tr class="whitespace-nowrap border-t border-gray-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-gray-700 transition">
-                        <th class="p-3 text-center">No.</th>
-                        <th class="p-3 text-center sortable" data-column="customer_id">
-                            ID <span class="sort-icon"></span>
+                <thead class="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+                    <tr class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">
+
+                        <th class="p-3 text-center w-16">No.</th>
+
+                        <th class="p-3 text-center w-20 sortable group" data-column="customer_id">
+                            <div class="flex items-center justify-center gap-1 cursor-pointer">
+                                ID <span class="sort-icon"></span>
+                            </div>
                         </th>
-                        <th class="p-3 text-left sortable" data-column="customer_code">
-                            Customer Code <span class="sort-icon"></span>
+
+                        <th class="p-3 text-left w-[140px] sortable group" data-column="customer_code">
+                            <div class="flex items-center gap-1 cursor-pointer">
+                                Code <span class="sort-icon"></span>
+                            </div>
                         </th>
-                        <th class="p-3 text-left sortable" data-column="first_name">
-                            Name <span class="sort-icon"></span>
+
+                        <th class="p-3 text-left w-[220px] sortable group" data-column="first_name">
+                            <div class="flex items-center gap-1 cursor-pointer">
+                                Name <span class="sort-icon"></span>
+                            </div>
                         </th>
-                        <th class="p-3 text-left sortable" data-column="gender">
-                            Gender <span class="sort-icon"></span>
+
+                        <th class="p-3 text-left w-24 sortable group" data-column="gender">
+                            <div class="flex items-center gap-1 cursor-pointer">
+                                Gender <span class="sort-icon"></span>
+                            </div>
                         </th>
-                        <th class="p-3 text-left sortable" data-column="date_of_birth">
-                            Date of Birth <span class="sort-icon"></span>
+
+                        <th class="p-3 text-left w-32 sortable group" data-column="date_of_birth">
+                            <div class="flex items-center gap-1 cursor-pointer">
+                                DOB <span class="sort-icon"></span>
+                            </div>
                         </th>
-                        <th class="p-3 text-left">National ID</th>
-                        <th class="p-3 text-left sortable" data-column="status_name">
-                            Status <span class="sort-icon"></span>
+
+                        <th class="p-3 text-left w-[160px]">National ID</th>
+
+                        <th class="p-3 text-center w-28 sortable group" data-column="status_name">
+                            <div class="flex items-center justify-center gap-1 cursor-pointer">
+                                Status <span class="sort-icon"></span>
+                            </div>
                         </th>
-                        <th class="p-3 text-left sortable" data-column="create_at">
-                            Created <span class="sort-icon"></span>
+
+                        <th class="p-3 text-left w-36 sortable group" data-column="create_at">
+                            <div class="flex items-center gap-1 cursor-pointer">
+                                Created <span class="sort-icon"></span>
+                            </div>
                         </th>
-                        <th class="p-3 text-left sortable" data-column="update_at">
-                            Updated <span class="sort-icon"></span>
+
+                        <th class="p-3 text-left w-36 sortable group" data-column="update_at">
+                            <div class="flex items-center gap-1 cursor-pointer">
+                                Updated <span class="sort-icon"></span>
+                            </div>
                         </th>
-                        <th class="p-3 text-center">Actions</th>
+
+                        <th class="p-3 text-center w-24 sticky right-0 bg-gray-50 dark:bg-gray-700 shadow-l z-10">
+                            Action
+                        </th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
