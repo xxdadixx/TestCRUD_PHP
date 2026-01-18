@@ -198,15 +198,27 @@ function openAddCustomer() {
 /* =========================
    UPDATE CUSTOMER (UPDATED THEME)
 ========================= */
+/* =========================
+   EDIT CUSTOMER (WITH PHOTO UPLOAD)
+========================= */
 function openEditCustomer(customerId) {
     fetch(API.customer.show + "?id=" + customerId)
-        .then((res) => res.json())
+        .then(async (res) => {
+            if (!res.ok) throw new Error(`HTTP Error! Status: ${res.status}`);
+            return res.json();
+        })
         .then((res) => {
             if (res.status !== "success") {
-                Swal.fire("Error", res.message, "error");
+                Swal.fire("Error", res.message || "Failed to fetch data", "error");
                 return;
             }
             const c = res.data;
+
+            // ตรวจสอบรูปภาพ: ถ้ามีรูปให้ใช้ path จริง, ถ้าไม่มีใช้ Default User Icon
+            // หมายเหตุ: APP_BASE_URL มาจาก header.php ที่เราประกาศไว้
+            const photoUrl = c.photo 
+                ? `${window.APP_BASE_URL}/photos/${c.photo}?t=${new Date().getTime()}` 
+                : "https://cdn-icons-png.flaticon.com/512/847/847969.png"; 
 
             Swal.fire({
                 title: "Edit Customer",
@@ -216,27 +228,32 @@ function openEditCustomer(customerId) {
                     <div class="text-left space-y-5 px-1">
                         <input type="hidden" id="customer_id" value="${c.customer_id}">
 
+                        <div class="flex flex-col items-center gap-3">
+                            <div class="relative group">
+                                <img id="preview_img" src="${photoUrl}" 
+                                     class="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-gray-700 shadow-lg">
+                                <label for="photo_input" 
+                                       class="absolute bottom-0 right-0 bg-blue-600 text-white p-1.5 rounded-full cursor-pointer hover:bg-blue-700 shadow-sm transition">
+                                    <i data-lucide="camera" class="w-4 h-4"></i>
+                                </label>
+                                <input type="file" id="photo_input" class="hidden" accept="image/*" onchange="previewImage(this)">
+                            </div>
+                            <span class="text-xs text-gray-400">Click camera icon to change</span>
+                        </div>
+
                         <div>
                             <label class="${labelClass}">Customer Code</label>
-                            <div class="relative">
-                                <input id="customer_code" class="${inputClass} ${disabledClass} font-mono text-sm" 
-                                    value="${c.customer_code}" disabled>
-                                <div class="absolute inset-y-0 right-3 flex items-center">
-                                    <i data-lucide="lock" class="w-4 h-4 text-gray-400"></i>
-                                </div>
-                            </div>
+                            <input class="${inputClass} ${disabledClass} font-mono text-sm" value="${c.customer_code}" disabled>
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="${labelClass}">First Name</label>
-                                <input id="first_name" class="${inputClass}" 
-                                    value="${c.first_name}" oninput="allowNameOnly(this)">
+                                <input id="first_name" class="${inputClass}" value="${c.first_name}" oninput="allowNameOnly(this)">
                             </div>
                             <div>
                                 <label class="${labelClass}">Last Name</label>
-                                <input id="last_name" class="${inputClass}" 
-                                    value="${c.last_name}" oninput="allowNameOnly(this)">
+                                <input id="last_name" class="${inputClass}" value="${c.last_name}" oninput="allowNameOnly(this)">
                             </div>
                         </div>
 
@@ -244,75 +261,96 @@ function openEditCustomer(customerId) {
                             <div>
                                 <label class="${labelClass}">Gender</label>
                                 <select id="gender" class="${inputClass} appearance-none">
-                                    <option value="Unspecified" ${c.gender === "Unspecified" ? "selected" : ""}>Unspecified</option>
-                                    <option value="Male" ${c.gender === "Male" ? "selected" : ""}>Male</option>
-                                    <option value="Female" ${c.gender === "Female" ? "selected" : ""}>Female</option>
+                                    <option value="Unspecified" ${c.gender==="Unspecified"?"selected":""}>Unspecified</option>
+                                    <option value="Male" ${c.gender==="Male"?"selected":""}>Male</option>
+                                    <option value="Female" ${c.gender==="Female"?"selected":""}>Female</option>
                                 </select>
                             </div>
                             <div>
                                 <label class="${labelClass}">Date of Birth</label>
-                                <input id="date_of_birth" type="date" class="${inputClass}" 
-                                    max="${new Date().toISOString().split("T")[0]}"
-                                    value="${c.date_of_birth}">
+                                <input id="date_of_birth" type="date" class="${inputClass}" value="${c.date_of_birth}">
                             </div>
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="${labelClass}">National ID</label>
-                                <input id="national_id" class="${inputClass} font-mono tracking-wide" 
-                                    value="${formatNationalIdValue(c.national_id)}"
-                                    maxlength="17" inputmode="numeric" oninput="formatNationalId(this)">
+                                <input id="national_id" class="${inputClass} font-mono" value="${formatNationalIdValue(c.national_id)}" maxlength="17" oninput="formatNationalId(this)">
                             </div>
                             <div>
                                 <label class="${labelClass}">Status</label>
                                 <select id="status_id" class="${inputClass} appearance-none">
-                                    <option value="1" ${c.status_id == 1 ? "selected" : ""}>Active</option>
-                                    <option value="2" ${c.status_id == 2 ? "selected" : ""}>Inactive</option>
+                                    <option value="1" ${c.status_id==1?"selected":""}>Active</option>
+                                    <option value="2" ${c.status_id==2?"selected":""}>Inactive</option>
                                 </select>
                             </div>
                         </div>
-                    </div>
-                `,
-                showCancelButton: true,
-                confirmButtonText: "Save Changes",
-                cancelButtonText: "Cancel",
-                focusConfirm: false,
-
-                // 🛠️ ส่วน Logic เหมือนเดิม
-                preConfirm: () => {
+                    </div>`,
+                showCancelButton: true, confirmButtonText: "Save Changes", cancelButtonText: "Cancel", focusConfirm: false,
+                
+                // 🔥 Logic การบันทึก: อัปโหลดรูปก่อน -> ถ้าผ่านค่อยส่ง Text
+                preConfirm: async () => {
+                    // 1. เก็บค่า Text
                     const data = {
                         customer_id: c.customer_id,
                         first_name: document.getElementById("first_name").value.trim(),
                         last_name: document.getElementById("last_name").value.trim(),
                         gender: document.getElementById("gender").value,
                         date_of_birth: document.getElementById("date_of_birth").value,
-                        national_id: document.getElementById("national_id").value.trim(),
+                        national_id: document.getElementById("national_id").value.replace(/-/g, ""),
                         status_id: document.getElementById("status_id").value,
                     };
 
-                    data.first_name = data.first_name.replace(/\s+/g, " ").trim();
-                    data.last_name = data.last_name.replace(/\s+/g, " ").trim();
+                    // Validation เบื้องต้น
+                    if (!data.first_name || !data.last_name) { Swal.showValidationMessage("Name is required"); return false; }
 
-                    if (!nameRegex.test(data.first_name)) { Swal.showValidationMessage("First name must be 2–50 characters"); return false; }
-                    if (!nameRegex.test(data.last_name)) { Swal.showValidationMessage("Last name must be 2–50 characters"); return false; }
-                    if (!data.date_of_birth) { Swal.showValidationMessage("Date of birth is required"); return false; }
+                    // 2. จัดการรูปภาพ (ถ้ามีการเลือกไฟล์ใหม่)
+                    const fileInput = document.getElementById('photo_input');
+                    if (fileInput.files.length > 0) {
+                        const formData = new FormData();
+                        formData.append('photo', fileInput.files[0]);
+                        formData.append('customer_id', c.customer_id);
 
-                    const cleanNationalId = data.national_id.replace(/-/g, "");
-                    if (!nationalIdRegex.test(cleanNationalId)) { Swal.showValidationMessage("National ID must be 13 digits"); return false; }
-                    data.national_id = cleanNationalId;
+                        try {
+                            // ส่งไปที่ upload_photo.php (Hardcode path หรือใส่ใน api.js ก็ได้)
+                            const uploadRes = await fetch(`${window.APP_BASE_URL}/customers/api/upload_photo.php`, {
+                                method: 'POST',
+                                body: formData
+                            });
+                            const uploadResult = await uploadRes.json();
+                            
+                            if (uploadResult.status !== 'success') {
+                                Swal.showValidationMessage("Photo Upload Failed: " + uploadResult.message);
+                                return false;
+                            }
+                        } catch (err) {
+                            Swal.showValidationMessage("Upload Error: " + err.message);
+                            return false;
+                        }
+                    }
 
-                    return data;
+                    return data; // ส่งข้อมูล Text ไปให้ .then ข้างล่างจัดการต่อ
                 },
-                didOpen: () => {
-                    lucide.createIcons();
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    ajaxPost(API.customer.update, result.value);
-                }
+                didOpen: () => lucide.createIcons()
+            }).then((result) => { 
+                if (result.isConfirmed) ajaxPost(API.customer.update, result.value); 
             });
+        })
+        .catch(err => {
+            console.error(err);
+            Swal.fire("Error", "Cannot load customer data", "error");
         });
+}
+
+// 🖼️ Helper สำหรับพรีวิวรูปทันทีที่เลือก
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('preview_img').src = e.target.result;
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
 }
 
 /* =========================

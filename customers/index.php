@@ -131,7 +131,7 @@ $columnIndexMap = [
 </div>
 
 <script src="<?= $BASE_URL ?>/assets/js/api.js"></script>
-<script src="<?= $BASE_URL ?>/assets/js/customer.js"></script>
+<script src="<?= $BASE_URL ?>/assets/js/customer.js?v=2"></script>
 <script>
     lucide.createIcons();
 </script>
