@@ -58,43 +58,45 @@ $activeColIndex = $isSorted
 
 <div class="container mx-auto mt-10 px-4 pb-24">
     <!-- TABLE WRAPPER -->
-    <div class="rounded-xl shadow bg-white dark:bg-gray-800 overflow-x-auto">
-        <table class="min-w-full">
-            <thead class="bg-gray-200 dark:bg-gray-700">
-                <tr class="border-t border-gray-200 dark:border-gray-700
-           hover:bg-blue-50 dark:hover:bg-gray-700 transition">
-                    <th class="p-3 text-center">No.</th>
-                    <th class="p-3 text-left <?= sortClass('customer_id') ?>">
-                        <?= sortLink('customer_id', 'ID') ?>
-                    </th>
-                    <th class="p-3 text-left <?= sortClass('customer_code') ?>">
-                        <?= sortLink('customer_code', 'Code') ?>
-                    </th>
-                    <th class="p-3 text-left <?= sortClass('first_name') ?>">
-                        <?= sortLink('first_name', 'Name') ?>
-                    </th>
-                    <th class="p-3 text-left <?= sortClass('gender') ?>">
-                        <?= sortLink('gender', 'Gender') ?>
-                    </th>
-                    <th class="p-3 text-left <?= sortClass('date_of_birth') ?>">
-                        <?= sortLink('date_of_birth', 'Date of Birth') ?>
-                    </th>
-                    <th class="p-3 text-left">National ID</th>
-                    <th class="p-3 text-center <?= sortClass('status_name') ?>">
-                        <?= sortLink('status_name', 'Status') ?>
-                    </th>
-                    <th class="p-3 text-left <?= sortClass('create_at') ?>">
-                        <?= sortLink('create_at', 'Created') ?>
-                    </th>
-                    <th class="p-3 text-left <?= sortClass('update_at') ?>">
-                        <?= sortLink('update_at', 'Updated') ?>
-                    </th>
-                    <th class="p-3 text-center">Actions</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody">
-            </tbody>
-        </table>
+    <div class="aurora-container">
+        <div class="aurora-orb"></div>
+        <div class="rounded-xl shadow bg-white dark:bg-gray-800 overflow-x-auto">
+            <table class="min-w-full">
+                <thead class="bg-gray-200 dark:bg-gray-700">
+                    <tr class="border-t border-gray-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-gray-700 transition">
+                        <th class="p-3 text-center">No.</th>
+                        <th class="p-3 text-center sortable" data-column="customer_id">
+                            ID <span class="sort-icon"></span>
+                        </th>
+                        <th class="p-3 text-left sortable" data-column="customer_code">
+                            Customer Code <span class="sort-icon"></span>
+                        </th>
+                        <th class="p-3 text-left sortable" data-column="first_name">
+                            Name <span class="sort-icon"></span>
+                        </th>
+                        <th class="p-3 text-left sortable" data-column="gender">
+                            Gender <span class="sort-icon"></span>
+                        </th>
+                        <th class="p-3 text-left sortable" data-column="date_of_birth">
+                            Date of Birth <span class="sort-icon"></span>
+                        </th>
+                        <th class="p-3 text-left">National ID</th>
+                        <th class="p-3 text-left sortable" data-column="status_name">
+                            Status <span class="sort-icon"></span>
+                        </th>
+                        <th class="p-3 text-left sortable" data-column="create_at">
+                            Created <span class="sort-icon"></span>
+                        </th>
+                        <th class="p-3 text-left sortable" data-column="update_at">
+                            Updated <span class="sort-icon"></span>
+                        </th>
+                        <th class="p-3 text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
     </div>
     <div id="pagination" class="flex justify-center mt-4 mb-4"></div>
 </div>

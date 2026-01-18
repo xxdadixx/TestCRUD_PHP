@@ -1,7 +1,453 @@
 .sort-active {
-    background-color: rgb(219 234 254); /* blue-100 */
+    background-color: #f5f5f7 !important;
 }
 
 .dark .sort-active {
-    background-color: rgb(30 58 138); /* blue-900 */
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* =========================
+   Sortable Table Headers
+========================= */
+th.sortable,
+.sortable {
+    cursor: pointer !important;
+    user-select: none; /* Prevents text selection when clicking rapidly */
+    transition: background-color 0.15s ease-in-out;
+}
+
+/* Prevent children from blocking pointer events */
+th.sortable *,
+.sortable * {
+    pointer-events: none !important;
+}
+
+/* Light Mode Hover */
+th.sortable:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Dark Mode Hover */
+/* Matches the class toggled in assets/js/theme.js */
+.dark th.sortable:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Light Mode Active */
+th.sortable:active {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Dark Mode Active */
+.dark th.sortable:active {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* =========================
+   UI Polish & Modernization
+========================= */
+
+/* Global Font Smoothing */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: #f5f5f7 !important; /* Apple Page Background */
+    color: #1d1d1f !important;
+    font-size: 16px !important;
+    line-height: 1.5 !important;
+    transition: background-color 0.6s cubic-bezier(0.16, 1, 0.3, 1), color 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark body {
+    background-color: #000000 !important;
+    color: #f5f5f7 !important;
+}
+
+/* Headings */
+h1 {
+    font-size: 34px !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.02em !important;
+    color: #1d1d1f !important;
+}
+.dark h1 { color: #f5f5f7 !important; }
+
+/* Container / Card - Apple Style */
+.rounded-xl {
+    border-radius: 18px !important;
+    /* Static shadow for depth, aurora handled by wrapper */
+    box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+    border: 1px solid rgba(0,0,0,0.05);
+    background-color: #ffffff !important;
+    transition: background-color 0.6s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.6s ease;
+    position: relative;
+    z-index: 1;
+}
+.dark .rounded-xl {
+    background-color: #1c1c1e !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.02);
+}
+
+/* =========================
+   Real Animated Aurora (Orbiting)
+========================= */
+.aurora-container {
+    position: relative;
+    z-index: 0;
+}
+
+.aurora-orb {
+    position: absolute;
+    z-index: -1;
+    top: 50%;
+    left: 50%;
+    width: 300px;
+    height: 300px;
+    margin-top: -150px;
+    margin-left: -150px;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.6), rgba(59, 130, 246, 0) 70%);
+    filter: blur(50px);
+    animation: aurora-orbit 10s linear infinite;
+    pointer-events: none;
+}
+
+.dark .aurora-orb {
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.8), rgba(59, 130, 246, 0) 70%);
+}
+
+@keyframes aurora-orbit {
+    from {
+        transform: translate(-50%, -50%) rotate(0deg) translateX(300px) rotate(0deg);
+    }
+    to {
+        transform: translate(-50%, -50%) rotate(360deg) translateX(300px) rotate(-360deg);
+    }
+}
+
+/* Table Header - Clean, Uppercase, Spaced */
+thead th {
+    background-color: rgba(255,255,255,0.8) !important;
+    backdrop-filter: blur(20px);
+    color: #86868b !important;
+    font-size: 13px !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600 !important;
+    padding: 14px 20px !important;
+    border-bottom: 1px solid #d2d2d7 !important;
+    height: auto !important;
+}
+
+.dark thead th {
+    background-color: #1c1c1e !important;
+    color: #98989d !important;
+    border-bottom: 1px solid #38383a !important;
+}
+
+/* Table Body - Breathing Room & Readability */
+tbody td {
+    padding: 16px 20px !important;
+    vertical-align: middle;
+    color: #1d1d1f !important;
+    border-bottom: 1px solid #e5e5e5 !important;
+    font-size: 15px !important;
+    font-weight: 400;
+    transition: border-color 0.3s ease, color 0.3s ease, background-color 0.2s ease;
+}
+
+.dark tbody td {
+    color: #f5f5f7 !important;
+    border-bottom: 1px solid #38383a !important;
+}
+
+/* Row Hover - Subtle & Professional */
+tbody tr:hover td {
+    background-color: rgba(0, 0, 0, 0.02) !important;
+}
+.dark tbody tr:hover td {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+/* Row Entry Animation (Staggered) */
+@keyframes appleSlideIn {
+    0% { opacity: 0; transform: translateY(10px) scale(0.99); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+tbody tr {
+    animation: appleSlideIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* Stagger delays for first 10 rows */
+tbody tr:nth-child(1) { animation-delay: 0.03s; }
+tbody tr:nth-child(2) { animation-delay: 0.06s; }
+tbody tr:nth-child(3) { animation-delay: 0.09s; }
+tbody tr:nth-child(4) { animation-delay: 0.12s; }
+tbody tr:nth-child(5) { animation-delay: 0.15s; }
+tbody tr:nth-child(6) { animation-delay: 0.18s; }
+tbody tr:nth-child(7) { animation-delay: 0.21s; }
+tbody tr:nth-child(8) { animation-delay: 0.24s; }
+tbody tr:nth-child(9) { animation-delay: 0.27s; }
+tbody tr:nth-child(10) { animation-delay: 0.30s; }
+
+/* Loading State Pulse */
+td[colspan="11"] {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite !important;
+}
+@keyframes pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+/* Soften the Sorted Column Highlight */
+/* Header Highlight */
+.bg-blue-100 {
+    background-color: #f5f5f7 !important;
+}
+/* Cell Highlight */
+.bg-blue-50 {
+    background-color: #fbfbfd !important;
+}
+.dark .dark\:bg-blue-900,
+.dark .bg-blue-900 {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+    color: #fff !important;
+}
+
+/* Status Badges - Refined Pill Shape */
+tbody td span.rounded-full {
+    padding: 4px 10px !important;
+    font-size: 12px !important;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    box-shadow: none !important;
+    border-radius: 6px !important;
+}
+/* Apple-style Status Colors */
+.bg-green-100 {
+    background-color: rgba(52, 199, 89, 0.1) !important;
+    color: #008535 !important;
+}
+.dark .bg-green-900 {
+    background-color: rgba(48, 209, 88, 0.15) !important;
+    color: #30d158 !important;
+}
+.bg-yellow-100 {
+    background-color: rgba(255, 149, 0, 0.1) !important;
+    color: #9a5800 !important;
+}
+.dark .bg-yellow-900 {
+    background-color: rgba(255, 159, 10, 0.15) !important;
+    color: #ff9f0a !important;
+}
+
+/* Action Buttons - Micro-interactions */
+tbody td button {
+    transition: all 0.2s ease;
+    opacity: 0.7;
+    border-radius: 8px !important;
+    transform: scale(1);
+}
+tbody td button:hover {
+    transform: scale(1.05) !important;
+    background-color: rgba(0,0,0,0.05);
+    opacity: 1;
+}
+tbody td button:active {
+    transform: scale(0.95) !important;
+}
+.dark tbody td button:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+/* Icon Colors */
+.text-blue-600 { color: #0071e3 !important; }
+.dark .text-blue-600 { color: #2997ff !important; }
+.text-red-600 { color: #ff3b30 !important; }
+.dark .text-red-600 { color: #ff453a !important; }
+
+/* Pagination - Modern Cards */
+#pagination button {
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    border-radius: 6px !important;
+    transition: all 0.2s ease;
+    margin: 0 2px;
+    height: 32px;
+    min-width: 32px;
+    background-color: transparent !important;
+    color: #1d1d1f !important;
+    transform: scale(1);
+}
+.dark #pagination button { color: #f5f5f7 !important; }
+
+#pagination button:not(:disabled):hover {
+    transform: translateY(-1px) !important;
+    background-color: #f5f5f7 !important;
+    box-shadow: none !important;
+}
+#pagination button:not(:disabled):active {
+    transform: scale(0.96) !important;
+}
+.dark #pagination button:not(:disabled):hover {
+    background-color: #2c2c2e !important;
+}
+
+/* Active Page */
+#pagination button.bg-blue-600 {
+    background-color: #0071e3 !important;
+    color: white !important;
+}
+.dark #pagination button.bg-blue-600 {
+    background-color: #2997ff !important;
+}
+
+/* Search Input - Focus State */
+#searchInput {
+    font-size: 15px !important;
+    padding: 8px 12px 8px 16px !important;
+    border-radius: 10px !important;
+    border: 1px solid #d2d2d7 !important;
+    background-color: #ffffff !important;
+    color: #1d1d1f !important;
+    box-shadow: none !important;
+    height: 36px;
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+}
+.dark #searchInput {
+    background-color: #2c2c2e !important;
+    border-color: #424245 !important;
+    color: #f5f5f7 !important;
+}
+#searchInput:focus {
+    box-shadow: 0 0 0 4px rgba(0,113,227,0.12) !important;
+    border-color: #0071e3 !important;
+    transform: scale(1.01);
+}
+
+/* Primary Button (Add Customer) */
+button.bg-blue-500 {
+    background-color: #0071e3 !important;
+    border-radius: 980px !important;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    padding: 8px 18px !important;
+    box-shadow: none !important;
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+    transform: scale(1);
+}
+button.bg-blue-500:hover {
+    background-color: #0077ed !important;
+    transform: scale(1.02) !important;
+    box-shadow: 0 4px 12px rgba(0, 113, 227, 0.3) !important;
+}
+button.bg-blue-500:active {
+    transform: scale(0.96) !important;
+}
+
+/* =========================
+   Footer - Apple Style
+========================= */
+footer {
+    background-color: #f5f5f7 !important;
+    border-top: 1px solid #d2d2d7 !important;
+    color: #86868b !important;
+    font-size: 13px !important;
+    padding: 32px 0 !important;
+    margin-top: 40px !important;
+    text-align: center !important;
+    width: 100% !important;
+    transition: background-color 0.6s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.6s ease;
+}
+
+.dark footer {
+    background-color: #000000 !important;
+    border-top: 1px solid #38383a !important;
+    color: #98989d !important;
+}
+
+footer a {
+    color: inherit !important;
+    text-decoration: none !important;
+}
+
+footer a:hover {
+    text-decoration: underline !important;
+    color: #1d1d1f !important;
+}
+
+.dark footer a:hover {
+    color: #f5f5f7 !important;
+}
+
+/* Reduced Motion Preference */
+@media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* =========================
+   Theme Toggle - Apple Style
+========================= */
+#toggleDark {
+    appearance: none;
+    -webkit-appearance: none;
+    background-color: transparent !important;
+    background: transparent;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    cursor: pointer;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    color: #111827 !important; /* Apple Light Mode Text */
+    transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1) !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 40px !important;
+    height: 40px !important;
+    margin-left: 8px;/* Hides any fallback text */
+    outline: none !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#toggleDark svg {
+    stroke: currentColor !important; /* FORCE SVG to take parent color */
+    pointer-events: none;
+    font-size: initial !important;
+    line-height: initial !important;
+    display: block;
+    width: 20px;
+    height: 20px;
+}
+
+#toggleDark:hover {
+    background-color: rgba(0, 0, 0, 0.12) !important;
+    color: #1d1d1f !important;
+    transform: scale(1.05);
+}
+
+#toggleDark:active {
+    transform: scale(0.9) rotate(-5deg);
+    background-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.dark #toggleDark {
+    color: #f5f5f7 !important; /* Apple Dark Mode Text */
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.dark #toggleDark:hover {
+    background-color: rgba(255, 255, 255, 0.18) !important;
+    color: #ffffff !important;
+}
+
+.dark #toggleDark:active {
+    transform: scale(0.9) rotate(5deg);
 }
