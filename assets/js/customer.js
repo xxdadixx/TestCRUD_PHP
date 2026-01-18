@@ -2,21 +2,29 @@ const nameRegex = /^[A-Za-zก-ฮ\s]{2,50}$/;
 const nationalIdRegex = /^\d{13}$/;
 
 /* =========================
+   CONFIG
+========================= */
+const API_URL = "api/customer_fetch.php";
+const tableBody = document.getElementById("tableBody");
+const searchInput = document.getElementById("searchInput");
+
+/* =========================
    STATE (DECLARE ONCE)
 ========================= */
 const urlParams = new URLSearchParams(window.location.search);
 
-let currentPage   = parseInt(urlParams.get('page')) || 1;
-let currentSearch = urlParams.get('search') || '';
-let currentSort   = urlParams.get('sort') || 'customer_id';
-let currentOrder  = urlParams.get('order') || 'ASC';
+let currentPage = parseInt(urlParams.get("page")) || 1;
+let currentSearch = urlParams.get("search") || "";
+let currentSort = urlParams.get("sort") || "";
+let currentOrder = urlParams.get("order") || "ASC";
+let debounceTimer = null;
 
 /* =========================
    ADD CUSTOMER
 ========================= */
 function openAddCustomer() {
     Swal.fire({
-        title: 'Add Customer',
+        title: "Add Customer",
         width: 600,
         ...swalTheme(),
         html: `
@@ -37,7 +45,7 @@ function openAddCustomer() {
                 <option value="Female">Female</option>
             </select>
 
-            <input id="date_of_birth" type="date" class="swal2-input" max="${new Date().toISOString().split('T')[0]}">
+            <input id="date_of_birth" type="date" class="swal2-input" max="${new Date().toISOString().split("T")[0]}">
             <input  id="national_id" 
                     class="swal2-input" 
                     placeholder="National ID (13 digits) *"
@@ -51,59 +59,59 @@ function openAddCustomer() {
             </select>
         `,
         showCancelButton: true,
-        confirmButtonText: 'Save',
+        confirmButtonText: "Save",
         focusConfirm: false,
 
         preConfirm: () => {
             const data = {
-                customer_code: document.getElementById('customer_code').value.trim(),
-                first_name: document.getElementById('first_name').value.trim(),
-                last_name: document.getElementById('last_name').value.trim(),
-                gender: document.getElementById('gender').value,
-                date_of_birth: document.getElementById('date_of_birth').value,
-                national_id: document.getElementById('national_id').value.trim(),
-                status_id: document.getElementById('status_id').value
+                customer_code: document.getElementById("customer_code").value.trim(),
+                first_name: document.getElementById("first_name").value.trim(),
+                last_name: document.getElementById("last_name").value.trim(),
+                gender: document.getElementById("gender").value,
+                date_of_birth: document.getElementById("date_of_birth").value,
+                national_id: document.getElementById("national_id").value.trim(),
+                status_id: document.getElementById("status_id").value,
             };
 
-            data.first_name = data.first_name.replace(/\s+/g, ' ').trim();
-            data.last_name = data.last_name.replace(/\s+/g, ' ').trim();
+            data.first_name = data.first_name.replace(/\s+/g, " ").trim();
+            data.last_name = data.last_name.replace(/\s+/g, " ").trim();
 
             if (!nameRegex.test(data.first_name)) {
                 Swal.showValidationMessage(
-                    'First name must be 2–50 characters (Thai/English letters only)'
+                    "First name must be 2–50 characters (Thai/English letters only)",
                 );
                 return false;
             }
 
             if (!nameRegex.test(data.last_name)) {
                 Swal.showValidationMessage(
-                    'Last name must be 2–50 characters (Thai/English letters only)'
+                    "Last name must be 2–50 characters (Thai/English letters only)",
                 );
                 return false;
             }
 
             if (!data.date_of_birth) {
-                Swal.showValidationMessage('Date of birth is required');
+                Swal.showValidationMessage("Date of birth is required");
                 return false;
             }
 
-            const cleanNationalId = data.national_id.replace(/-/g, '');
+            const cleanNationalId = data.national_id.replace(/-/g, "");
 
             if (!nationalIdRegex.test(cleanNationalId)) {
-                Swal.showValidationMessage('National ID must be 13 digits');
+                Swal.showValidationMessage("National ID must be 13 digits");
                 return false;
             }
 
             data.national_id = cleanNationalId;
 
             if (!data.status_id) {
-                Swal.showValidationMessage('Status is required');
+                Swal.showValidationMessage("Status is required");
                 return false;
             }
 
             return data;
-        }
-    }).then(result => {
+        },
+    }).then((result) => {
         if (result.isConfirmed) {
             ajaxPost(API.customer.store, result.value);
         }
@@ -114,20 +122,18 @@ function openAddCustomer() {
    UPDATE CUSTOMER
 ========================= */
 function openEditCustomer(customerId) {
-
-    fetch(API.customer.show + '?id=' + customerId)
-        .then(res => res.json())
-        .then(res => {
-
-            if (res.status !== 'success') {
-                Swal.fire('Error', res.message, 'error');
+    fetch(API.customer.show + "?id=" + customerId)
+        .then((res) => res.json())
+        .then((res) => {
+            if (res.status !== "success") {
+                Swal.fire("Error", res.message, "error");
                 return;
             }
 
             const c = res.data;
 
             Swal.fire({
-                title: 'Edit Customer',
+                title: "Edit Customer",
                 width: 600,
                 ...swalTheme(),
                 html: `
@@ -147,13 +153,13 @@ function openEditCustomer(customerId) {
                             oninput="allowNameOnly(this)">
 
                     <select id="gender" class="swal2-select">
-                        <option value="Unspecified" ${c.gender === 'Unspecified' ? 'selected' : ''}>Unspecified</option>
-                        <option value="Male" ${c.gender === 'Male' ? 'selected' : ''}>Male</option>
-                        <option value="Female" ${c.gender === 'Female' ? 'selected' : ''}>Female</option>
+                        <option value="Unspecified" ${c.gender === "Unspecified" ? "selected" : ""}>Unspecified</option>
+                        <option value="Male" ${c.gender === "Male" ? "selected" : ""}>Male</option>
+                        <option value="Female" ${c.gender === "Female" ? "selected" : ""}>Female</option>
                     </select>
 
                     <input id="date_of_birth" type="date"
-                        max="${new Date().toISOString().split('T')[0]}"
+                        max="${new Date().toISOString().split("T")[0]}"
                         class="swal2-input"
                         value="${c.date_of_birth}">
 
@@ -166,65 +172,64 @@ function openEditCustomer(customerId) {
                             oninput="formatNationalId(this)">
 
                     <select id="status_id" class="swal2-select">
-                        <option value="1" ${c.status_id == 1 ? 'selected' : ''}>Active</option>
-                        <option value="2" ${c.status_id == 2 ? 'selected' : ''}>Inactive</option>
+                        <option value="1" ${c.status_id == 1 ? "selected" : ""}>Active</option>
+                        <option value="2" ${c.status_id == 2 ? "selected" : ""}>Inactive</option>
                     </select>
                 `,
                 showCancelButton: true,
-                confirmButtonText: 'Update',
+                confirmButtonText: "Update",
                 focusConfirm: false,
 
                 preConfirm: () => {
                     const data = {
                         customer_id: c.customer_id,
-                        first_name: document.getElementById('first_name').value.trim(),
-                        last_name: document.getElementById('last_name').value.trim(),
-                        gender: document.getElementById('gender').value,
-                        date_of_birth: document.getElementById('date_of_birth').value,
-                        national_id: document.getElementById('national_id').value.trim(),
-                        status_id: document.getElementById('status_id').value
+                        first_name: document.getElementById("first_name").value.trim(),
+                        last_name: document.getElementById("last_name").value.trim(),
+                        gender: document.getElementById("gender").value,
+                        date_of_birth: document.getElementById("date_of_birth").value,
+                        national_id: document.getElementById("national_id").value.trim(),
+                        status_id: document.getElementById("status_id").value,
                     };
 
-                    data.first_name = data.first_name.replace(/\s+/g, ' ').trim();
-                    data.last_name = data.last_name.replace(/\s+/g, ' ').trim();
+                    data.first_name = data.first_name.replace(/\s+/g, " ").trim();
+                    data.last_name = data.last_name.replace(/\s+/g, " ").trim();
 
                     if (!nameRegex.test(data.first_name)) {
                         Swal.showValidationMessage(
-                            'First name must be 2–50 characters (Thai/English letters only)'
+                            "First name must be 2–50 characters (Thai/English letters only)",
                         );
                         return false;
                     }
 
                     if (!nameRegex.test(data.last_name)) {
                         Swal.showValidationMessage(
-                            'Last name must be 2–50 characters (Thai/English letters only)'
+                            "Last name must be 2–50 characters (Thai/English letters only)",
                         );
                         return false;
                     }
 
                     if (!data.date_of_birth) {
-                        Swal.showValidationMessage('Date of birth is required');
+                        Swal.showValidationMessage("Date of birth is required");
                         return false;
                     }
 
-                    const cleanNationalId = data.national_id.replace(/-/g, '');
+                    const cleanNationalId = data.national_id.replace(/-/g, "");
 
                     if (!nationalIdRegex.test(cleanNationalId)) {
-                        Swal.showValidationMessage('National ID must be 13 digits');
+                        Swal.showValidationMessage("National ID must be 13 digits");
                         return false;
                     }
 
                     data.national_id = cleanNationalId;
 
                     if (!data.status_id) {
-                        Swal.showValidationMessage('Status is required');
+                        Swal.showValidationMessage("Status is required");
                         return false;
                     }
 
-
                     return data;
-                }
-            }).then(result => {
+                },
+            }).then((result) => {
                 if (result.isConfirmed) {
                     ajaxPost(API.customer.update, result.value);
                 }
@@ -237,14 +242,14 @@ function openEditCustomer(customerId) {
 ========================= */
 function confirmDelete(customerId) {
     Swal.fire({
-        title: 'Are you sure?',
-        text: 'This customer will be permanently deleted',
-        icon: 'warning',
+        title: "Are you sure?",
+        text: "This customer will be permanently deleted",
+        icon: "warning",
         ...swalTheme(),
         showCancelButton: true,
-        confirmButtonColor: '#dc2626',
-        confirmButtonText: 'Yes, delete'
-    }).then(result => {
+        confirmButtonColor: "#dc2626",
+        confirmButtonText: "Yes, delete",
+    }).then((result) => {
         if (result.isConfirmed) {
             ajaxPost(API.customer.delete, { customer_id: customerId });
         }
@@ -257,46 +262,44 @@ function confirmDelete(customerId) {
 async function ajaxPost(url, data) {
     try {
         const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
         });
 
         if (!response.ok) {
-            throw new Error('HTTP error ' + response.status);
+            throw new Error("HTTP error " + response.status);
         }
 
         const text = await response.text();
-        console.log('RAW RESPONSE:', text);
+        console.log("RAW RESPONSE:", text);
 
         let result;
         try {
             result = JSON.parse(text);
         } catch {
-            throw new Error('Server did not return JSON');
+            throw new Error("Server did not return JSON");
         }
 
-        if (result.status === 'success') {
+        if (result.status === "success") {
             await Swal.fire({
-                title: 'Success',
+                title: "Success",
                 text: result.message,
-                icon: 'success',
-                ...swalTheme()
+                icon: "success",
+                ...swalTheme(),
             });
 
-            location.reload();
+            loadCustomers(currentPage);
         } else {
             throw new Error(result.message);
         }
-
     } catch (err) {
         Swal.fire({
-            title: 'Error',
-            text: err.message || 'Cannot connect to server',
-            icon: 'error',
-            ...swalTheme()
+            title: "Error",
+            text: err.message || "Cannot connect to server",
+            icon: "error",
+            ...swalTheme(),
         });
-
     }
 }
 
@@ -304,18 +307,18 @@ async function ajaxPost(url, data) {
     Dark Mode
 ========================= */
 function isDarkMode() {
-    return document.documentElement.classList.contains('dark');
+    return document.documentElement.classList.contains("dark");
 }
 
 function swalTheme() {
     return isDarkMode()
         ? {
-            background: '#1f2937', // gray-800
-            color: '#f9fafb'       // gray-50
+            background: "#1f2937", // gray-800
+            color: "#f9fafb", // gray-50
         }
         : {
-            background: '#ffffff',
-            color: '#111827'
+            background: "#ffffff",
+            color: "#111827",
         };
 }
 
@@ -323,62 +326,56 @@ function swalTheme() {
     RegExp ADD/EDIT
 ========================= */
 function formatNationalId(input) {
-    let digits = input.value.replace(/\D/g, '').slice(0, 13);
+    let digits = input.value.replace(/\D/g, "").slice(0, 13);
 
-    let formatted = '';
+    let formatted = "";
     if (digits.length > 0) formatted += digits.substring(0, 1);
-    if (digits.length > 1) formatted += '-' + digits.substring(1, 5);
-    if (digits.length > 5) formatted += '-' + digits.substring(5, 10);
-    if (digits.length > 10) formatted += '-' + digits.substring(10, 12);
-    if (digits.length > 12) formatted += '-' + digits.substring(12, 13);
+    if (digits.length > 1) formatted += "-" + digits.substring(1, 5);
+    if (digits.length > 5) formatted += "-" + digits.substring(5, 10);
+    if (digits.length > 10) formatted += "-" + digits.substring(10, 12);
+    if (digits.length > 12) formatted += "-" + digits.substring(12, 13);
 
     input.value = formatted;
 }
 
 function formatNationalIdValue(id) {
-    return id.replace(
-        /^(\d)(\d{4})(\d{5})(\d{2})(\d)$/,
-        '$1-$2-$3-$4-$5'
-    );
+    return id.replace(/^(\d)(\d{4})(\d{5})(\d{2})(\d)$/, "$1-$2-$3-$4-$5");
 }
 
 function allowNameOnly(input) {
     input.value = input.value
-        .replace(/[^A-Za-zก-ฮ\s]/g, '') // ตัดทุกอย่างที่ไม่ตรง RegExp
-        .replace(/\s+/g, ' ')           // เว้นวรรคซ้ำ
-        .slice(0, 50);                  // จำกัดความยาว
+        .replace(/[^A-Za-zก-ฮ\s]/g, "") // ตัดทุกอย่างที่ไม่ตรง RegExp
+        .replace(/\s+/g, " ") // เว้นวรรคซ้ำ
+        .slice(0, 50); // จำกัดความยาว
 }
-
-/* =========================
-   CONFIG
-========================= */
-const API_URL = `${window.APP_BASE_URL}/customers/api/customer_fetch.php`;
-const tableBody = document.getElementById('tableBody');
-const searchInput = document.getElementById('searchInput');
 
 /* =========================
    INIT
 ========================= */
-document.addEventListener('DOMContentLoaded', () => {
-    loadCustomers(1);
-
-    // debounce search
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
-                currentSearch = e.target.value.trim();
-                loadCustomers(1);
-            }, 400);
-        });
-    }
+searchInput.addEventListener('input', (e) => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+        currentSearch = e.target.value.trim();
+        loadCustomers(1);
+    }, 400);
 });
 
+/* =========================
+   BIND EVENTS & LOAD
+========================= */
+document.querySelectorAll('.sortable').forEach(th => {
+    th.addEventListener('click', () => {
+        changeSort(th.dataset.column);
+    });
+});
+
+loadCustomers(currentPage);
 /* =========================
    FETCH DATA
 ========================= */
 async function loadCustomers(page = 1) {
     currentPage = page;
+    updateHeaderUI();
 
     tableBody.innerHTML = `
         <tr>
@@ -392,7 +389,7 @@ async function loadCustomers(page = 1) {
         page: currentPage,
         search: currentSearch,
         sort: currentSort,
-        order: currentOrder
+        order: currentOrder,
     });
 
     try {
@@ -402,7 +399,6 @@ async function loadCustomers(page = 1) {
         renderTable(data.customers);
         renderPagination(data.page, data.totalPages);
         lucide.createIcons();
-
     } catch (err) {
         console.error(err);
         tableBody.innerHTML = `
@@ -419,6 +415,8 @@ async function loadCustomers(page = 1) {
    RENDER TABLE
 ========================= */
 function renderTable(customers) {
+    const getSortClass = (col) => currentSort === col ? 'bg-blue-50 dark:bg-blue-900' : '';
+
     if (!customers || customers.length === 0) {
         tableBody.innerHTML = `
             <tr>
@@ -430,26 +428,29 @@ function renderTable(customers) {
         return;
     }
 
-    tableBody.innerHTML = customers.map((c, index) => `
+    tableBody.innerHTML = customers
+        .map(
+            (c, index) => `
         <tr class="border-t border-gray-200 dark:border-gray-700
                    hover:bg-blue-50 dark:hover:bg-gray-700 transition">
             <td class="p-3 text-center">${index + 1}</td>
-            <td class="p-3">${c.customer_id}</td>
-            <td class="p-3">${c.customer_code}</td>
-            <td class="p-3">${c.name}</td>
-            <td class="p-3">${c.gender}</td>
-            <td class="p-3">${c.date_of_birth}</td>
+            <td class="p-3 ${getSortClass('customer_id')}">${c.customer_id}</td>
+            <td class="p-3 ${getSortClass('customer_code')}">${c.customer_code}</td>
+            <td class="p-3 ${getSortClass('first_name')}">${c.name}</td>
+            <td class="p-3 ${getSortClass('gender')}">${c.gender}</td>
+            <td class="p-3 ${getSortClass('date_of_birth')}">${c.date_of_birth}</td>
             <td class="p-3 font-mono">${c.national_id}</td>
-            <td class="p-3 text-center">
+            <td class="p-3 text-center ${getSortClass('status_name')}">
                 <span class="px-3 py-1 rounded-full text-sm
-                    ${c.status_name === 'Active'
-            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-            : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'}">
+                    ${c.status_name === "Active"
+                    ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                    : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                }">
                     ${c.status_name}
                 </span>
             </td>
-            <td class="p-3">${c.create_at}</td>
-            <td class="p-3">${c.update_at}</td>
+            <td class="p-3 ${getSortClass('create_at')}">${c.create_at}</td>
+            <td class="p-3 ${getSortClass('update_at')}">${c.update_at}</td>
             <td class="p-3 text-center">
                 <div class="flex justify-center gap-3">
                     <button onclick="openEditCustomer(${c.customer_id})"
@@ -463,26 +464,28 @@ function renderTable(customers) {
                 </div>
             </td>
         </tr>
-    `).join('');
+    `,
+        )
+        .join("");
 }
 
 /* =========================
    PAGINATION
 ========================= */
 function renderPagination(page, totalPages) {
-    const container = document.getElementById('pagination');
+    const container = document.getElementById("pagination");
     if (!container || totalPages <= 1) return;
 
-    container.innerHTML = '';
+    container.innerHTML = "";
 
     const createBtn = (label, targetPage, active = false, disabled = false) => {
-        const btn = document.createElement('button');
+        const btn = document.createElement("button");
         btn.textContent = label;
 
         btn.className = `
             px-3 py-1 rounded text-sm
-            ${active ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-700 dark:text-gray-200'}
-            ${disabled ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-500 hover:text-white'}
+            ${active ? "bg-blue-600 text-white" : "bg-gray-200 dark:bg-gray-700 dark:text-gray-200"}
+            ${disabled ? "opacity-40 cursor-not-allowed" : "hover:bg-blue-500 hover:text-white"}
         `;
 
         if (!disabled) {
@@ -493,9 +496,7 @@ function renderPagination(page, totalPages) {
     };
 
     /* ⏮ Prev */
-    container.appendChild(
-        createBtn('«', page - 1, false, page === 1)
-    );
+    container.appendChild(createBtn("«", page - 1, false, page === 1));
 
     const pages = new Set();
 
@@ -512,36 +513,57 @@ function renderPagination(page, totalPages) {
 
     let lastPage = 0;
 
-    sortedPages.forEach(p => {
+    sortedPages.forEach((p) => {
         if (p - lastPage > 1) {
-            const dots = document.createElement('span');
-            dots.textContent = '...';
-            dots.className = 'px-2 text-gray-500';
+            const dots = document.createElement("span");
+            dots.textContent = "...";
+            dots.className = "px-2 text-gray-500";
             container.appendChild(dots);
         }
 
-        container.appendChild(
-            createBtn(p, p, p === page)
-        );
+        container.appendChild(createBtn(p, p, p === page));
 
         lastPage = p;
     });
 
     /* ⏭ Next */
-    container.appendChild(
-        createBtn('»', page + 1, false, page === totalPages)
-    );
+    container.appendChild(createBtn("»", page + 1, false, page === totalPages));
 }
 
 function changeSort(column) {
     if (currentSort === column) {
-        currentOrder = currentOrder === 'ASC' ? 'DESC' : 'ASC';
+        if (currentOrder === "ASC") {
+            currentOrder = "DESC";
+        } else {
+            currentSort = "";
+            currentOrder = "ASC";
+        }
     } else {
         currentSort = column;
-        currentOrder = 'ASC';
+        currentOrder = "ASC";
     }
 
     loadCustomers(1);
 }
 
+/* =========================
+   UI HELPERS
+========================= */
+function updateHeaderUI() {
+    const activeClasses = ['bg-blue-100', 'dark:bg-blue-900'];
 
+    document.querySelectorAll('.sortable').forEach(th => {
+        const icon = th.querySelector('.sort-icon');
+        const column = th.dataset.column;
+
+        // Reset
+        icon.textContent = '';
+        th.classList.remove(...activeClasses);
+
+        // Set Active
+        if (column === currentSort) {
+            icon.textContent = currentOrder === 'ASC' ? ' ▲' : ' ▼';
+            th.classList.add(...activeClasses);
+        }
+    });
+}
