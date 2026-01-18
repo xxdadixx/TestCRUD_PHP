@@ -48,10 +48,7 @@ $BASE_URL = $baseDir === '/' ? '' : $baseDir;
     <main class="flex-grow">
         <div class="container mx-auto mt-10 px-4 lg:px-6">
             <div class="flex justify-end mb-4">
-                <button id="toggleDark"
-                    class="px-4 py-2 rounded
-                bg-gray-200 dark:bg-gray-700
-                text-gray-800 dark:text-gray-100">
-                    🌙 Dark Mode
+                <button id="toggleDark" aria-label="Switch to Dark Mode">
+                    
                 </button>
             </div>
