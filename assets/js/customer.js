@@ -428,11 +428,104 @@ function openEditCustomer(customerId) {
 function previewImage(input) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = function (e) {
             document.getElementById('preview_img').src = e.target.result;
         }
         reader.readAsDataURL(input.files[0]);
     }
+}
+
+/* =========================
+   VIEW CUSTOMER (READ ONLY) - FINAL COLOR FIX
+========================= */
+function openViewCustomer(customerId) {
+    // 1. ดึงข้อมูล
+    fetch(API.customer.show + "?id=" + customerId)
+        .then((res) => res.json())
+        .then((res) => {
+            if (res.status !== "success") {
+                Swal.fire("Error", "Cannot fetch data", "error");
+                return;
+            }
+            const c = res.data;
+
+            // 2. เตรียมรูปภาพ
+            const photoUrl = c.photo 
+                ? `${window.APP_BASE_URL}/photos/${c.photo}?t=${new Date().getTime()}` 
+                : "https://cdn-icons-png.flaticon.com/512/847/847969.png"; 
+
+            // 3. กำหนดสีของช่อง Status (Active = เขียว, Inactive = เหลือง)
+            const statusInputClass = c.status_id == 1
+                /* ✅ Active: สีเขียว */
+                ? "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800"
+                /* 🟡 Inactive: สีเหลือง */
+                : "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-500 dark:border-yellow-700";
+
+            // 4. แสดงผล
+            Swal.fire({
+                title: "Customer Details",
+                width: 600,
+                ...swalTheme(),
+                html: `
+                    <div class="text-left space-y-5 px-1">
+                        
+                        <div class="flex flex-col items-center gap-3">
+                            <div class="relative group">
+                                <img src="${photoUrl}" 
+                                     class="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-gray-700 shadow-lg">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="${labelClass}">Customer Code</label>
+                            <input class="${inputClass} ${disabledClass} font-mono text-sm" value="${c.customer_code}" disabled readonly>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="${labelClass}">First Name</label>
+                                <input class="${inputClass} ${disabledClass}" value="${c.first_name}" disabled readonly>
+                            </div>
+                            <div>
+                                <label class="${labelClass}">Last Name</label>
+                                <input class="${inputClass} ${disabledClass}" value="${c.last_name}" disabled readonly>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="${labelClass}">Gender</label>
+                                <input class="${inputClass} ${disabledClass}" value="${c.gender}" disabled readonly>
+                            </div>
+                            <div>
+                                <label class="${labelClass}">Date of Birth</label>
+                                <input class="${inputClass} ${disabledClass}" value="${c.date_of_birth}" disabled readonly>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="${labelClass}">National ID</label>
+                                <input class="${inputClass} ${disabledClass} font-mono" value="${formatNationalIdValue(c.national_id)}" disabled readonly>
+                            </div>
+                            <div>
+                                <label class="${labelClass}">Status</label>
+                                <input class="w-full px-3 py-2.5 rounded-lg border font-medium ${statusInputClass}" 
+                                       value="${c.status_id == 1 ? 'Active' : 'Inactive'}" 
+                                       disabled readonly>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                showConfirmButton: false,
+                showCancelButton: true,
+                cancelButtonText: "Close",
+                didOpen: () => {
+                    lucide.createIcons();
+                }
+            });
+        })
+        .catch(err => Swal.fire("Error", "Connection failed", "error"));
 }
 
 /* =========================
@@ -623,7 +716,8 @@ function renderTable(customers) {
     tableBody.innerHTML = customers
         .map((c, index) => `
         <tr class="border-t border-gray-200 dark:border-gray-700
-                   hover:bg-blue-50 dark:hover:bg-gray-700/50 transition duration-150">
+                   hover:bg-blue-50 dark:hover:bg-gray-700/50 transition duration-150 cursor-pointer"
+                    onclick="if(!event.target.closest('button')) openViewCustomer(${c.customer_id})">
             
             <td class="p-3 text-center text-gray-500 dark:text-gray-400">
                 ${(currentPage - 1) * 10 + (index + 1)}
