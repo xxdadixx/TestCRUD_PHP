@@ -37,46 +37,63 @@ if (!in_array($order, ['ASC', 'DESC'], true)) {
 }
 
 /* =========================
-   WHERE (Search)
+   1. BUILD SEARCH LOGIC (WHERE)
+   สร้างเงื่อนไข WHERE ให้เสร็จ "ก่อน" จะเอาไปใช้ใน SQL
 ========================= */
 $whereSql = '';
 $params = [];
 
 if ($search !== '') {
-    $whereSql = "
-        WHERE
-        CONCAT_WS(' ',
-            c.customer_id,
-            c.customer_code,
-            c.first_name,
-            c.last_name,
-            c.gender,
-            c.date_of_birth,
-            c.national_id,
-            s.status_name,
-            c.create_at,
-            c.update_at
-        ) LIKE :kw
-    ";
-    $params[':kw'] = "%{$search}%";
+    // แยกคำค้นหาด้วยช่องว่าง (รองรับการพิมพ์ "Male Somchai")
+    $keywords = preg_split('/\s+/', $search, -1, PREG_SPLIT_NO_EMPTY);
+    
+    $conditions = [];
+    
+    foreach ($keywords as $index => $keyword) {
+        $paramKey = ":kw{$index}";
+        
+        // ค้นหาคำนี้ในทุกคอลัมน์
+        $conditions[] = "
+            CONCAT_WS(' ',
+                c.customer_id,
+                c.customer_code,
+                c.first_name,
+                c.last_name,
+                c.gender,
+                c.date_of_birth,
+                c.national_id,
+                s.status_name,
+                DATE_FORMAT(c.create_at, '%Y-%m-%d'),
+                DATE_FORMAT(c.update_at, '%Y-%m-%d')
+            ) LIKE $paramKey
+        ";
+        
+        $params[$paramKey] = "%{$keyword}%";
+    }
+
+    if (!empty($conditions)) {
+        // ใช้ AND เพื่อบอกว่าต้องเจอ "ครบทุกคำ"
+        $whereSql = "WHERE " . implode(' AND ', $conditions);
+    }
 }
 
 /* =========================
-   QUERY
+   2. MAIN QUERY (Data)
+   เอา $whereSql มาใส่ตรงนี้
 ========================= */
 $sql = "
     SELECT
         c.*, s.status_name
     FROM customer c
     JOIN customer_status s ON c.status_id = s.status_id
-    $whereSql
+    $whereSql 
     ORDER BY $sort $order
     LIMIT :limit OFFSET :offset
 ";
 
 $stmt = $pdo->prepare($sql);
 
-/* bind search */
+/* bind search params */
 foreach ($params as $k => $v) {
     $stmt->bindValue($k, $v);
 }
@@ -89,7 +106,9 @@ $stmt->execute();
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 /* =========================
-   Pagination
+   3. COUNT QUERY (Pagination)
+   🔴 จุดสำคัญ: ต้องใส่ $whereSql ตรงนี้ด้วย!
+   และต้อง bind params ชุดเดียวกัน
 ========================= */
 $countSql = "
     SELECT COUNT(*)
@@ -97,16 +116,20 @@ $countSql = "
     JOIN customer_status s ON c.status_id = s.status_id
     $whereSql
 ";
+
 $countStmt = $pdo->prepare($countSql);
+
+// Bind params ชุดเดิม (search keywords)
 foreach ($params as $k => $v) {
     $countStmt->bindValue($k, $v);
 }
+
 $countStmt->execute();
 $totalRows = $countStmt->fetchColumn();
 $totalPages = (int)ceil($totalRows / $limit);
 
 /* =========================
-   FORMAT DATA (before send)
+   FORMAT DATA
 ========================= */
 $customers = [];
 
@@ -131,5 +154,6 @@ header('Content-Type: application/json');
 echo json_encode([
     'customers'  => $customers,
     'page'       => $page,
-    'totalPages' => $totalPages
+    'totalPages' => $totalPages,
+    'totalRows'  => $totalRows // ส่งกลับไปเผื่อ debug หรือแสดงผล
 ]);
