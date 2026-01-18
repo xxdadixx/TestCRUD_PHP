@@ -111,41 +111,19 @@ function openAddCustomer() {
             data.first_name = data.first_name.replace(/\s+/g, " ").trim();
             data.last_name = data.last_name.replace(/\s+/g, " ").trim();
 
-            if (!nameRegex.test(data.first_name)) {
-                Swal.showValidationMessage(
-                    "First name must be 2–50 characters (Thai/English letters only)",
-                );
-                return false;
-            }
-
-            if (!nameRegex.test(data.last_name)) {
-                Swal.showValidationMessage(
-                    "Last name must be 2–50 characters (Thai/English letters only)",
-                );
-                return false;
-            }
-
-            if (!data.date_of_birth) {
-                Swal.showValidationMessage("Date of birth is required");
-                return false;
-            }
+            if (!nameRegex.test(data.first_name)) { Swal.showValidationMessage("First name must be 2–50 characters"); return false; }
+            if (!nameRegex.test(data.last_name)) { Swal.showValidationMessage("Last name must be 2–50 characters"); return false; }
+            if (!data.date_of_birth) { Swal.showValidationMessage("Date of birth is required"); return false; }
 
             const cleanNationalId = data.national_id.replace(/-/g, "");
-
-            if (!nationalIdRegex.test(cleanNationalId)) {
-                Swal.showValidationMessage("National ID must be 13 digits");
-                return false;
-            }
-
+            if (!nationalIdRegex.test(cleanNationalId)) { Swal.showValidationMessage("National ID must be 13 digits"); return false; }
             data.national_id = cleanNationalId;
-
-            if (!data.status_id) {
-                Swal.showValidationMessage("Status is required");
-                return false;
-            }
 
             return data;
         },
+        didOpen: () => {
+            lucide.createIcons(); // ให้ไอคอน Lock ทำงาน
+        }
     }).then((result) => {
         if (result.isConfirmed) {
             ajaxPost(API.customer.store, result.value);
@@ -252,41 +230,19 @@ function openEditCustomer(customerId) {
                     data.first_name = data.first_name.replace(/\s+/g, " ").trim();
                     data.last_name = data.last_name.replace(/\s+/g, " ").trim();
 
-                    if (!nameRegex.test(data.first_name)) {
-                        Swal.showValidationMessage(
-                            "First name must be 2–50 characters (Thai/English letters only)",
-                        );
-                        return false;
-                    }
-
-                    if (!nameRegex.test(data.last_name)) {
-                        Swal.showValidationMessage(
-                            "Last name must be 2–50 characters (Thai/English letters only)",
-                        );
-                        return false;
-                    }
-
-                    if (!data.date_of_birth) {
-                        Swal.showValidationMessage("Date of birth is required");
-                        return false;
-                    }
+                    if (!nameRegex.test(data.first_name)) { Swal.showValidationMessage("First name must be 2–50 characters"); return false; }
+                    if (!nameRegex.test(data.last_name)) { Swal.showValidationMessage("Last name must be 2–50 characters"); return false; }
+                    if (!data.date_of_birth) { Swal.showValidationMessage("Date of birth is required"); return false; }
 
                     const cleanNationalId = data.national_id.replace(/-/g, "");
-
-                    if (!nationalIdRegex.test(cleanNationalId)) {
-                        Swal.showValidationMessage("National ID must be 13 digits");
-                        return false;
-                    }
-
+                    if (!nationalIdRegex.test(cleanNationalId)) { Swal.showValidationMessage("National ID must be 13 digits"); return false; }
                     data.national_id = cleanNationalId;
-
-                    if (!data.status_id) {
-                        Swal.showValidationMessage("Status is required");
-                        return false;
-                    }
 
                     return data;
                 },
+                didOpen: () => {
+                    lucide.createIcons();
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
                     ajaxPost(API.customer.update, result.value);
