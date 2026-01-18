@@ -469,7 +469,7 @@ button.bg-blue-500:active {
 /* =========================
    Footer - Apple Style
 ========================= */
-footer {
+/* footer {
     background-color: #f5f5f7 !important;
     border-top: 1px solid #d2d2d7 !important;
     color: #86868b !important;
@@ -485,7 +485,7 @@ footer {
     background-color: #000000 !important;
     border-top: 1px solid #38383a !important;
     color: #98989d !important;
-}
+} */
 
 footer a {
     color: inherit !important;
