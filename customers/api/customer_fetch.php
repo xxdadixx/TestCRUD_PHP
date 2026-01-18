@@ -1,7 +1,7 @@
 <?php
-require "../../config/database.php";
-require "../../customers/api/table_sort.php";
-require "../../customers/api/formate.php";
+require __DIR__ . "/../../config/database.php";
+require __DIR__ . "/table_sort.php";
+require __DIR__ . "/formate.php";
 
 /* =========================
    INPUT
@@ -19,6 +19,7 @@ $allowedSort = [
     'customer_id',
     'customer_code',
     'first_name',
+    'last_name',
     'gender',
     'date_of_birth',
     'national_id',
@@ -38,49 +39,40 @@ if (!in_array($order, ['ASC', 'DESC'], true)) {
 /* =========================
    WHERE (Search)
 ========================= */
-$where  = [];
+$whereSql = '';
 $params = [];
 
 if ($search !== '') {
-
-    /* === Gender (exact) === */
-    if (in_array(strtolower($search), ['male', 'female', 'unspecified'])) {
-        $where[] = "c.gender = :gender";
-        $params[':gender'] = ucfirst(strtolower($search));
-    }
-
-    /* === Customer Code (prefix) === */ elseif (str_starts_with(strtoupper($search), 'CUS-')) {
-        $where[] = "c.customer_code LIKE :code";
-        $params[':code'] = strtoupper($search) . '%';
-    }
-
-    /* === National ID (number search) === */ elseif (preg_match('/^\d{3,}/', $search)) {
-        $where[] = "c.national_id LIKE :nid";
-        $params[':nid'] = "%$search%";
-    }
-
-    /* === Name (default) === */ else {
-        $where[] = "(c.first_name LIKE :kw OR c.last_name LIKE :kw)";
-        $params[':kw'] = "%$search%";
-    }
+    $whereSql = "
+        WHERE
+        CONCAT_WS(' ',
+            c.customer_id,
+            c.customer_code,
+            c.first_name,
+            c.last_name,
+            c.gender,
+            c.date_of_birth,
+            c.national_id,
+            s.status_name,
+            c.create_at,
+            c.update_at
+        ) LIKE :kw
+    ";
+    $params[':kw'] = "%{$search}%";
 }
-
-$whereSQL = $where ? 'WHERE ' . implode(' AND ', $where) : '';
-
 
 /* =========================
    QUERY
 ========================= */
 $sql = "
-    SELECT SQL_CALC_FOUND_ROWS
+    SELECT
         c.*, s.status_name
     FROM customer c
     JOIN customer_status s ON c.status_id = s.status_id
-    $whereSQL
+    $whereSql
     ORDER BY $sort $order
     LIMIT :limit OFFSET :offset
 ";
-
 
 $stmt = $pdo->prepare($sql);
 
@@ -99,7 +91,18 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 /* =========================
    Pagination
 ========================= */
-$totalRows  = $pdo->query("SELECT FOUND_ROWS()")->fetchColumn();
+$countSql = "
+    SELECT COUNT(*)
+    FROM customer c
+    JOIN customer_status s ON c.status_id = s.status_id
+    $whereSql
+";
+$countStmt = $pdo->prepare($countSql);
+foreach ($params as $k => $v) {
+    $countStmt->bindValue($k, $v);
+}
+$countStmt->execute();
+$totalRows = $countStmt->fetchColumn();
 $totalPages = (int)ceil($totalRows / $limit);
 
 /* =========================

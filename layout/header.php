@@ -38,6 +38,9 @@ $BASE_URL = $baseDir === '/' ? '' : $baseDir;
     <!-- Table Sort Highligh -->
     <link rel="stylesheet" href="<?= $BASE_URL ?>/assets/css/table.css">
 
+    <!-- Theme Toggle Script -->
+    <script src="<?= $BASE_URL ?>/assets/js/theme.js"></script>
+
     <!-- Global Base URL -->
     <script>
         window.APP_BASE_URL = "<?= $BASE_URL ?>";

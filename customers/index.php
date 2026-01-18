@@ -1,7 +1,6 @@
 <?php
 require "../config/database.php";
 require "../layout/header.php";
-require "../customers/api/table_sort.php";
 require "../customers/api/formate.php";
 
 $columnIndexMap = [
@@ -16,11 +15,9 @@ $columnIndexMap = [
     'update_at'     => 9
 ];
 
-$activeColIndex = $isSorted
-    ? ($columnIndexMap[$sort] ?? null)
-    : null;
-
 ?>
+
+<link rel="stylesheet" href="<?= $BASE_URL ?>/assets/css/table.css">
 
 <div class="flex justify-between items-center mb-4">
     <h1 class="text-2xl font-bold">Customer List</h1>
@@ -35,11 +32,6 @@ $activeColIndex = $isSorted
                     bg-white dark:bg-gray-700
                     border border-gray-300 dark:border-gray-600
                     focus:ring-2 focus:ring-blue-500">
-
-        <!-- Search Icon -->
-        <span class="absolute right-3 top-2.5 text-gray-400">
-            🔍
-        </span>
 
         <?php if (!empty($_GET['search'])): ?>
             <a href="index.php"
