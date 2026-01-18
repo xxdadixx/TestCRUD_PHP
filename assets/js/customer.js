@@ -567,3 +567,62 @@ function updateHeaderUI() {
         }
     });
 }
+
+/* =========================
+   RESIZABLE COLUMNS LOGIC
+========================= */
+function initResizableTable() {
+    const table = document.querySelector('table');
+    if (!table) return;
+
+    const cols = table.querySelectorAll('th');
+
+    cols.forEach((col) => {
+        // ป้องกันการสร้างซ้ำ
+        if (col.querySelector('.resizer')) return;
+
+        // สร้างแท่ง Resizer
+        const resizer = document.createElement('div');
+        resizer.classList.add('resizer');
+
+        // ป้องกันไม่ให้คลิกแล้วไป Trigger การ Sort
+        resizer.addEventListener('click', (e) => e.stopPropagation());
+
+        col.appendChild(resizer);
+
+        let x = 0;
+        let w = 0;
+
+        const mouseDownHandler = (e) => {
+            e.stopPropagation(); // ป้องกัน Sort
+            x = e.clientX;
+
+            const styles = window.getComputedStyle(col);
+            w = parseInt(styles.width, 10);
+
+            // ติด Listeners ที่ Document เพื่อให้ลากเมาส์หลุดขอบตารางได้
+            document.addEventListener('mousemove', mouseMoveHandler);
+            document.addEventListener('mouseup', mouseUpHandler);
+
+            resizer.classList.add('resizing');
+        };
+
+        const mouseMoveHandler = (e) => {
+            // คำนวณระยะที่ขยับ
+            const dx = e.clientX - x;
+            // ปรับความกว้าง (Minimum 50px กันย่อจนหาย)
+            col.style.width = `${Math.max(50, w + dx)}px`;
+        };
+
+        const mouseUpHandler = () => {
+            document.removeEventListener('mousemove', mouseMoveHandler);
+            document.removeEventListener('mouseup', mouseUpHandler);
+            resizer.classList.remove('resizing');
+        };
+
+        resizer.addEventListener('mousedown', mouseDownHandler);
+    });
+}
+
+// เรียกใช้งานเมื่อโหลดหน้าเว็บเสร็จ
+document.addEventListener('DOMContentLoaded', initResizableTable);
