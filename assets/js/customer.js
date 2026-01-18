@@ -19,49 +19,84 @@ let currentSort = urlParams.get("sort") || "";
 let currentOrder = urlParams.get("order") || "ASC";
 let debounceTimer = null;
 
+// 🎨 Common Input Style (Apple Design)
+const inputClass = "w-full px-3 py-2.5 bg-white dark:bg-[#1c1c1e] border border-[#d1d1d6] dark:border-[#424245] rounded-lg text-[#1d1d1f] dark:text-white focus:ring-4 focus:ring-[#0071e3]/10 focus:border-[#0071e3] transition-all outline-none placeholder-gray-400";
+const labelClass = "block text-[11px] font-semibold text-[#86868b] dark:text-[#98989d] uppercase tracking-wider mb-1.5";
+const disabledClass = "bg-[#f5f5f7] dark:bg-[#2c2c2e] text-[#86868b] cursor-not-allowed";
+
 /* =========================
-   ADD CUSTOMER
+   ADD CUSTOMER (UPDATED THEME)
 ========================= */
 function openAddCustomer() {
     Swal.fire({
-        title: "Add Customer",
+        title: "New Customer",
         width: 600,
         ...swalTheme(),
         html: `
-            <small style="color: #6b7280">Customer code will be generated automatically</small>
-            <input id="customer_code" class="swal2-input" value="CUS-2026-XXXX" disabled>
-            <input  id="first_name" 
-                    class="swal2-input" 
-                    placeholder="First Name *" 
-                    oninput="allowNameOnly(this)">
-            <input  id="last_name" 
-                    class="swal2-input" 
-                    placeholder="Last Name *" 
-                    oninput="allowNameOnly(this)">
+            <div class="text-left space-y-5 px-1">
+                
+                <div>
+                    <label class="${labelClass}">Customer Code</label>
+                    <div class="relative">
+                        <input id="customer_code" class="${inputClass} ${disabledClass} font-mono text-sm" 
+                               value="Auto Generated" disabled>
+                        <div class="absolute inset-y-0 right-3 flex items-center">
+                            <i data-lucide="lock" class="w-4 h-4 text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
 
-            <select id="gender" class="swal2-select">
-                <option value="Unspecified">Unspecified</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-            </select>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="${labelClass}">First Name</label>
+                        <input id="first_name" class="${inputClass}" 
+                               placeholder="e.g. Somchai" oninput="allowNameOnly(this)">
+                    </div>
+                    <div>
+                        <label class="${labelClass}">Last Name</label>
+                        <input id="last_name" class="${inputClass}" 
+                               placeholder="e.g. Jaidee" oninput="allowNameOnly(this)">
+                    </div>
+                </div>
 
-            <input id="date_of_birth" type="date" class="swal2-input" max="${new Date().toISOString().split("T")[0]}">
-            <input  id="national_id" 
-                    class="swal2-input" 
-                    placeholder="National ID (13 digits) *"
-                    maxlength="17"
-                    inputmode="numeric"
-                    oninput="formatNationalId(this)">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="${labelClass}">Gender</label>
+                        <select id="gender" class="${inputClass} appearance-none">
+                            <option value="Unspecified">Unspecified</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="${labelClass}">Date of Birth</label>
+                        <input id="date_of_birth" type="date" class="${inputClass}" 
+                               max="${new Date().toISOString().split("T")[0]}">
+                    </div>
+                </div>
 
-            <select id="status_id" class="swal2-select">
-                <option value="1">Active</option>
-                <option value="2">Inactive</option>
-            </select>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="${labelClass}">National ID</label>
+                        <input id="national_id" class="${inputClass} font-mono tracking-wide" 
+                               placeholder="x-xxxx-xxxxx-xx-x" maxlength="17" inputmode="numeric" oninput="formatNationalId(this)">
+                    </div>
+                    <div>
+                        <label class="${labelClass}">Status</label>
+                        <select id="status_id" class="${inputClass} appearance-none">
+                            <option value="1">Active</option>
+                            <option value="2">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
         `,
         showCancelButton: true,
-        confirmButtonText: "Save",
+        confirmButtonText: "Create Customer",
+        cancelButtonText: "Cancel",
         focusConfirm: false,
 
+        // 🛠️ ส่วน Logic เหมือนเดิม (ไม่ต้องแก้)
         preConfirm: () => {
             const data = {
                 customer_code: document.getElementById("customer_code").value.trim(),
@@ -119,7 +154,7 @@ function openAddCustomer() {
 }
 
 /* =========================
-   UPDATE CUSTOMER
+   UPDATE CUSTOMER (UPDATED THEME)
 ========================= */
 function openEditCustomer(customerId) {
     fetch(API.customer.show + "?id=" + customerId)
@@ -129,7 +164,6 @@ function openEditCustomer(customerId) {
                 Swal.fire("Error", res.message, "error");
                 return;
             }
-
             const c = res.data;
 
             Swal.fire({
@@ -137,49 +171,73 @@ function openEditCustomer(customerId) {
                 width: 600,
                 ...swalTheme(),
                 html: `
-                    <input type="hidden" id="customer_id" value="${c.customer_id}">
+                    <div class="text-left space-y-5 px-1">
+                        <input type="hidden" id="customer_id" value="${c.customer_id}">
 
-                    <input id="customer_code" class="swal2-input"
-                        value="${c.customer_code}" disabled>
+                        <div>
+                            <label class="${labelClass}">Customer Code</label>
+                            <div class="relative">
+                                <input id="customer_code" class="${inputClass} ${disabledClass} font-mono text-sm" 
+                                    value="${c.customer_code}" disabled>
+                                <div class="absolute inset-y-0 right-3 flex items-center">
+                                    <i data-lucide="lock" class="w-4 h-4 text-gray-400"></i>
+                                </div>
+                            </div>
+                        </div>
 
-                    <input  id="first_name" 
-                            class="swal2-input"
-                            value="${c.first_name}"
-                            oninput="allowNameOnly(this)">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="${labelClass}">First Name</label>
+                                <input id="first_name" class="${inputClass}" 
+                                    value="${c.first_name}" oninput="allowNameOnly(this)">
+                            </div>
+                            <div>
+                                <label class="${labelClass}">Last Name</label>
+                                <input id="last_name" class="${inputClass}" 
+                                    value="${c.last_name}" oninput="allowNameOnly(this)">
+                            </div>
+                        </div>
 
-                    <input  id="last_name" 
-                            class="swal2-input"
-                            value="${c.last_name}"
-                            oninput="allowNameOnly(this)">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="${labelClass}">Gender</label>
+                                <select id="gender" class="${inputClass} appearance-none">
+                                    <option value="Unspecified" ${c.gender === "Unspecified" ? "selected" : ""}>Unspecified</option>
+                                    <option value="Male" ${c.gender === "Male" ? "selected" : ""}>Male</option>
+                                    <option value="Female" ${c.gender === "Female" ? "selected" : ""}>Female</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="${labelClass}">Date of Birth</label>
+                                <input id="date_of_birth" type="date" class="${inputClass}" 
+                                    max="${new Date().toISOString().split("T")[0]}"
+                                    value="${c.date_of_birth}">
+                            </div>
+                        </div>
 
-                    <select id="gender" class="swal2-select">
-                        <option value="Unspecified" ${c.gender === "Unspecified" ? "selected" : ""}>Unspecified</option>
-                        <option value="Male" ${c.gender === "Male" ? "selected" : ""}>Male</option>
-                        <option value="Female" ${c.gender === "Female" ? "selected" : ""}>Female</option>
-                    </select>
-
-                    <input id="date_of_birth" type="date"
-                        max="${new Date().toISOString().split("T")[0]}"
-                        class="swal2-input"
-                        value="${c.date_of_birth}">
-
-                    <input  id="national_id" 
-                            class="swal2-input" 
-                            placeholder="National ID (13 digits) *"
-                            maxlength="17"
-                            inputmode="numeric"
-                            value="${formatNationalIdValue(c.national_id)}"
-                            oninput="formatNationalId(this)">
-
-                    <select id="status_id" class="swal2-select">
-                        <option value="1" ${c.status_id == 1 ? "selected" : ""}>Active</option>
-                        <option value="2" ${c.status_id == 2 ? "selected" : ""}>Inactive</option>
-                    </select>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="${labelClass}">National ID</label>
+                                <input id="national_id" class="${inputClass} font-mono tracking-wide" 
+                                    value="${formatNationalIdValue(c.national_id)}"
+                                    maxlength="17" inputmode="numeric" oninput="formatNationalId(this)">
+                            </div>
+                            <div>
+                                <label class="${labelClass}">Status</label>
+                                <select id="status_id" class="${inputClass} appearance-none">
+                                    <option value="1" ${c.status_id == 1 ? "selected" : ""}>Active</option>
+                                    <option value="2" ${c.status_id == 2 ? "selected" : ""}>Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                 `,
                 showCancelButton: true,
-                confirmButtonText: "Update",
+                confirmButtonText: "Save Changes",
+                cancelButtonText: "Cancel",
                 focusConfirm: false,
 
+                // 🛠️ ส่วน Logic เหมือนเดิม
                 preConfirm: () => {
                     const data = {
                         customer_id: c.customer_id,
