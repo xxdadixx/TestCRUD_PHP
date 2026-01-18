@@ -25,6 +25,70 @@ const labelClass = "block text-[11px] font-semibold text-[#86868b] dark:text-[#9
 const disabledClass = "bg-[#f5f5f7] dark:bg-[#2c2c2e] text-[#86868b] cursor-not-allowed";
 
 /* =========================
+   PAGINATION (FIXED)
+========================= */
+function renderPagination(page, totalPages) {
+    const container = document.getElementById("pagination");
+
+    // 1. เช็คว่ามี Container ไหม ถ้าไม่มีก็จบ
+    if (!container) return;
+
+    // 🔥 แก้ไข: เคลียร์ปุ่มเก่าทิ้งก่อนเสมอ! (ไม่ว่าจะมีกี่หน้าก็ตาม)
+    container.innerHTML = "";
+
+    // 2. ถ้ามีแค่หน้าเดียว ไม่ต้องสร้างปุ่มเพิ่ม (จบการทำงานตรงนี้)
+    if (totalPages <= 1) return;
+
+    // --- ส่วนสร้างปุ่ม (Code เดิม) ---
+    const createBtn = (label, targetPage, active = false, disabled = false) => {
+        const btn = document.createElement("button");
+        btn.textContent = label;
+
+        btn.className = `
+            px-3 py-1 rounded text-sm
+            ${active ? "bg-blue-600 text-white" : "bg-gray-200 dark:bg-gray-700 dark:text-gray-200"}
+            ${disabled ? "opacity-40 cursor-not-allowed" : "hover:bg-blue-500 hover:text-white"}
+        `;
+
+        if (!disabled) {
+            btn.onclick = () => loadCustomers(targetPage);
+        }
+
+        return btn;
+    };
+
+    /* ⏮ Prev */
+    container.appendChild(createBtn("«", page - 1, false, page === 1));
+
+    const pages = new Set();
+    pages.add(1);
+    pages.add(totalPages);
+
+    for (let i = page - 1; i <= page + 1; i++) {
+        if (i > 1 && i < totalPages) {
+            pages.add(i);
+        }
+    }
+
+    const sortedPages = [...pages].sort((a, b) => a - b);
+    let lastPage = 0;
+
+    sortedPages.forEach((p) => {
+        if (p - lastPage > 1) {
+            const dots = document.createElement("span");
+            dots.textContent = "...";
+            dots.className = "px-2 text-gray-500";
+            container.appendChild(dots);
+        }
+        container.appendChild(createBtn(p, p, p === page));
+        lastPage = p;
+    });
+
+    /* ⏭ Next */
+    container.appendChild(createBtn("»", page + 1, false, page === totalPages));
+}
+
+/* =========================
    ADD CUSTOMER (UPDATED THEME)
 ========================= */
 function openAddCustomer() {
