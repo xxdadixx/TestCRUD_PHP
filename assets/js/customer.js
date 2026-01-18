@@ -490,126 +490,112 @@ async function loadCustomers(page = 1) {
 }
 
 /* =========================
-   RENDER TABLE
+   RENDER TABLE (WITH HIGHLIGHT)
 ========================= */
 function renderTable(customers) {
-    const getSortClass = (col) => currentSort === col ? 'bg-blue-50 dark:bg-blue-900' : '';
+    const getSortClass = (col) => currentSort === col ? 'bg-blue-50 dark:bg-blue-900/30' : '';
+
+    // ฟังก์ชันช่วย Highlight ข้อความ (ใส่ไว้ข้างในหรือข้างนอกก็ได้)
+    const h = (text) => highlightText(text, currentSearch);
 
     tableBody.innerHTML = customers
-        .map(
-            (c, index) => `
-        <tr class="whitespace-nowrap border-t border-gray-200 dark:border-gray-700
-                   hover:bg-blue-50 dark:hover:bg-gray-700 transition">
-            <td class="p-3 text-center">${index + 1}</td>
-            <td class="p-3 ${getSortClass('customer_id')}">${c.customer_id}</td>
-            <td class="p-3 ${getSortClass('customer_code')}">${c.customer_code}</td>
-            <td class="p-3 ${getSortClass('first_name')}">${c.name}</td>
-            
-            </tr>
-    `,
-        )
-        .join("");
-
-    tableBody.innerHTML = customers
-        .map(
-            (c, index) => `
+        .map((c, index) => `
         <tr class="border-t border-gray-200 dark:border-gray-700
-                   hover:bg-blue-50 dark:hover:bg-gray-700 transition">
-            <td class="p-3 text-center">${index + 1}</td>
-            <td class="p-3 ${getSortClass('customer_id')}">${c.customer_id}</td>
-            <td class="p-3 ${getSortClass('customer_code')}">${c.customer_code}</td>
-            <td class="p-3 ${getSortClass('first_name')}">${c.name}</td>
-            <td class="p-3 ${getSortClass('gender')}">${c.gender}</td>
-            <td class="p-3 ${getSortClass('date_of_birth')}">${c.date_of_birth}</td>
-            <td class="p-3 font-mono">${c.national_id}</td>
-            <td class="p-3 text-center ${getSortClass('status_name')}">
-                <span class="px-3 py-1 rounded-full text-sm
-                    ${c.status_name === "Active"
-                    ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                    : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                }">
-                    ${c.status_name}
-                </span>
+                   hover:bg-blue-50 dark:hover:bg-gray-700/50 transition duration-150">
+            
+            <td class="p-3 text-center text-gray-500 dark:text-gray-400">
+                ${(currentPage - 1) * 10 + (index + 1)}
             </td>
-            <td class="p-3 ${getSortClass('create_at')}">${c.create_at}</td>
-            <td class="p-3 ${getSortClass('update_at')}">${c.update_at}</td>
+            
+            <td class="p-3 ${getSortClass('customer_id')}">
+                ${h(c.customer_id)}
+            </td>
+            
+            <td class="p-3 ${getSortClass('customer_code')} font-mono text-sm">
+                ${h(c.customer_code)}
+            </td>
+            
+            <td class="p-3 ${getSortClass('first_name')} font-medium text-gray-900 dark:text-white">
+                ${h(c.name)}
+            </td>
+            
+            <td class="p-3 ${getSortClass('gender')}">
+                ${h(c.gender)}
+            </td>
+            
+            <td class="p-3 ${getSortClass('date_of_birth')}">
+                ${h(c.date_of_birth)}
+            </td>
+            
+            <td class="p-3 font-mono text-sm text-gray-600 dark:text-gray-300">
+                ${h(c.national_id)}
+            </td>
+            
+            <td class="p-3 text-center ${getSortClass('status_name')}">
+                <span class="px-3 py-1 rounded-full text-xs font-medium border
+                    ${c.status_name === "Active"
+                /* ✅ Active: สีเขียว (เหมือนเดิม แต่ปรับ Dark Mode ให้ดูนวลขึ้น) */
+                ? "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800"
+
+                /* 🔴 Inactive: เปลี่ยนจาก เหลือง -> เทา (Gray) */
+                : "bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-700/50 dark:text-gray-400 dark:border-gray-600"
+                }">
+                    ${c.status_name} 
+                    </span>
+            </td>
+            
+            <td class="p-3 text-xs text-gray-500 ${getSortClass('create_at')}">
+                ${h(c.create_at)}
+            </td>
+            
+            <td class="p-3 text-xs text-gray-500 ${getSortClass('update_at')}">
+                ${h(c.update_at)}
+            </td>
+            
             <td class="p-3 text-center">
-                <div class="flex justify-center gap-3">
+                <div class="flex justify-center gap-2">
                     <button onclick="openEditCustomer(${c.customer_id})"
-                        class="p-2 rounded-lg text-blue-600 hover:bg-blue-600 hover:text-white">
+                        class="p-1.5 rounded-md text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition">
                         <i data-lucide="pencil" class="w-4 h-4"></i>
                     </button>
                     <button onclick="confirmDelete(${c.customer_id})"
-                        class="p-2 rounded-lg text-red-600 hover:bg-red-600 hover:text-white">
+                        class="p-1.5 rounded-md text-red-600 hover:bg-red-100 dark:hover:bg-red-900/50 transition">
                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                     </button>
                 </div>
             </td>
         </tr>
-    `,
-        )
-        .join("");
+    `).join("");
+
+    // อย่าลืมสั่งให้ icon ทำงานหลังจากวาดตารางเสร็จ
+    lucide.createIcons();
 }
 
 /* =========================
-   PAGINATION
+   HIGHLIGHT HELPER FUNCTION
+   (เพิ่มฟังก์ชันนี้ไว้ล่างสุดของไฟล์ หรือที่กลุ่ม Helper)
 ========================= */
-function renderPagination(page, totalPages) {
-    const container = document.getElementById("pagination");
-    if (!container || totalPages <= 1) return;
+function highlightText(text, search) {
+    if (!text) return "";
+    const str = String(text); // แปลงเป็น String ก่อนเสมอเผื่อข้อมูลเป็นตัวเลข
 
-    container.innerHTML = "";
+    if (!search) return str;
 
-    const createBtn = (label, targetPage, active = false, disabled = false) => {
-        const btn = document.createElement("button");
-        btn.textContent = label;
+    // 1. แยกคำค้นหาด้วยช่องว่าง (เพื่อให้เหมือน Logic PHP ที่ค้นหาได้หลายคำ)
+    // filter(Boolean) เพื่อตัดช่องว่างทิ้ง
+    const terms = search.trim().split(/\s+/).filter(Boolean);
 
-        btn.className = `
-            px-3 py-1 rounded text-sm
-            ${active ? "bg-blue-600 text-white" : "bg-gray-200 dark:bg-gray-700 dark:text-gray-200"}
-            ${disabled ? "opacity-40 cursor-not-allowed" : "hover:bg-blue-500 hover:text-white"}
-        `;
+    if (terms.length === 0) return str;
 
-        if (!disabled) {
-            btn.onclick = () => loadCustomers(targetPage);
-        }
+    // 2. สร้าง Regex Pattern รวมทุกคำ: (คำ1|คำ2|คำ3)
+    // ใช้ map เพื่อ escape อักขระพิเศษ (เช่น . หรือ +) ป้องกัน Regex พัง
+    const patternStr = terms.map(term => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+    const regex = new RegExp(`(${patternStr})`, 'gi'); // gi = Global + Case Insensitive
 
-        return btn;
-    };
-
-    /* ⏮ Prev */
-    container.appendChild(createBtn("«", page - 1, false, page === 1));
-
-    const pages = new Set();
-
-    pages.add(1);
-    pages.add(totalPages);
-
-    for (let i = page - 1; i <= page + 1; i++) {
-        if (i > 1 && i < totalPages) {
-            pages.add(i);
-        }
-    }
-
-    const sortedPages = [...pages].sort((a, b) => a - b);
-
-    let lastPage = 0;
-
-    sortedPages.forEach((p) => {
-        if (p - lastPage > 1) {
-            const dots = document.createElement("span");
-            dots.textContent = "...";
-            dots.className = "px-2 text-gray-500";
-            container.appendChild(dots);
-        }
-
-        container.appendChild(createBtn(p, p, p === page));
-
-        lastPage = p;
-    });
-
-    /* ⏭ Next */
-    container.appendChild(createBtn("»", page + 1, false, page === totalPages));
+    // 3. แทนที่คำที่เจอด้วย <mark>
+    return str.replace(regex, (match) =>
+        `<mark class="bg-yellow-200 text-gray-900 dark:bg-yellow-500/40 dark:text-yellow-100 rounded-sm px-0.5 mx-0.5 font-semibold shadow-sm decoration-clone">${match}</mark>`
+    );
 }
 
 function changeSort(column) {
