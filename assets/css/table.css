@@ -383,7 +383,8 @@ tbody td button:active {
 #pagination {
     display: flex;
     align-items: center;
-    gap: 4px; /* ระยะห่างระหว่างปุ่ม */
+    gap: 4px;
+    /* ระยะห่างระหว่างปุ่ม */
     margin-top: 1rem;
 }
 
@@ -394,31 +395,6 @@ tbody td button:active {
 
 #pagination button:active {
     transform: scale(0.95);
-}
-
-/* Search Input - Focus State */
-#searchInput {
-    font-size: 15px !important;
-    padding: 8px 12px 8px 16px !important;
-    border-radius: 10px !important;
-    border: 1px solid #d2d2d7 !important;
-    background-color: #ffffff !important;
-    color: #1d1d1f !important;
-    box-shadow: none !important;
-    height: 36px;
-    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
-}
-
-.dark #searchInput {
-    background-color: #2c2c2e !important;
-    border-color: #424245 !important;
-    color: #f5f5f7 !important;
-}
-
-#searchInput:focus {
-    box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.12) !important;
-    border-color: #0071e3 !important;
-    transform: scale(1.01);
 }
 
 /* Primary Button (Add Customer) */
@@ -594,13 +570,16 @@ th .resizer:hover,
 /* ปรับระยะห่างภายใน Popup ให้ดูโปร่งขึ้น */
 div:where(.swal2-container) div:where(.swal2-popup) {
     padding: 2rem !important;
-    border-radius: 20px !important; /* โค้งมนแบบ Apple Card */
+    border-radius: 20px !important;
+    /* โค้งมนแบบ Apple Card */
 }
 
 /* ปรับแต่งปุ่มกด (Confirm/Cancel) */
 div:where(.swal2-container) button:where(.swal2-styled).swal2-confirm {
-    background-color: #0071e3 !important; /* Apple Blue */
-    border-radius: 999px !important; /* Full rounded (Pill) */
+    background-color: #0071e3 !important;
+    /* Apple Blue */
+    border-radius: 999px !important;
+    /* Full rounded (Pill) */
     font-size: 15px !important;
     font-weight: 500 !important;
     padding: 10px 24px !important;
@@ -608,7 +587,8 @@ div:where(.swal2-container) button:where(.swal2-styled).swal2-confirm {
 }
 
 div:where(.swal2-container) button:where(.swal2-styled).swal2-cancel {
-    background-color: #e5e5ea !important; /* Apple Gray */
+    background-color: #e5e5ea !important;
+    /* Apple Gray */
     color: #1d1d1f !important;
     border-radius: 999px !important;
     font-size: 15px !important;
