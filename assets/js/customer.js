@@ -29,63 +29,78 @@ const disabledClass = "bg-[#f5f5f7] dark:bg-[#2c2c2e] text-[#86868b] cursor-not-
 ========================= */
 function renderPagination(page, totalPages) {
     const container = document.getElementById("pagination");
-
-    // 1. เช็คว่ามี Container ไหม ถ้าไม่มีก็จบ
     if (!container) return;
-
-    // 🔥 แก้ไข: เคลียร์ปุ่มเก่าทิ้งก่อนเสมอ! (ไม่ว่าจะมีกี่หน้าก็ตาม)
     container.innerHTML = "";
 
-    // 2. ถ้ามีแค่หน้าเดียว ไม่ต้องสร้างปุ่มเพิ่ม (จบการทำงานตรงนี้)
+    // ถ้ามีหน้าเดียว หรือไม่มีข้อมูล ไม่ต้องโชว์
     if (totalPages <= 1) return;
 
-    // --- ส่วนสร้างปุ่ม (Code เดิม) ---
-    const createBtn = (label, targetPage, active = false, disabled = false) => {
+    /* --- Helper สร้างปุ่ม --- */
+    const createBtn = (label, targetPage, isActive, isDisabled, isIcon = false) => {
         const btn = document.createElement("button");
-        btn.textContent = label;
+        if (isIcon) btn.innerHTML = label; else btn.textContent = label;
 
-        btn.className = `
-            px-3 py-1 rounded text-sm
-            ${active ? "bg-blue-600 text-white" : "bg-gray-200 dark:bg-gray-700 dark:text-gray-200"}
-            ${disabled ? "opacity-40 cursor-not-allowed" : "hover:bg-blue-500 hover:text-white"}
-        `;
+        // Base Style: ปุ่มสี่เหลี่ยมมนๆ มีขอบบางๆ (Apple Style)
+        let cls = "flex items-center justify-center min-w-[36px] h-[36px] rounded-lg text-sm transition-all border duration-200 ";
 
-        if (!disabled) {
-            btn.onclick = () => loadCustomers(targetPage);
+        if (isActive) {
+            // ✅ หน้าปัจจุบัน: สีฟ้า + เงา
+            cls += "bg-blue-600 text-white border-blue-600 font-semibold shadow-md transform scale-105 z-10";
+        } else if (isDisabled) {
+            // 🚫 ปุ่มกดไม่ได้: สีจางๆ
+            cls += "bg-transparent text-gray-300 border-transparent cursor-not-allowed dark:text-gray-700";
+        } else {
+            // ⚪ ปุ่มปกติ: ขาว ขอบเทา -> hover แล้วฟ้า
+            cls += "bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:border-gray-300 hover:text-blue-600 hover:shadow-sm dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700";
         }
 
+        btn.className = cls;
+
+        if (!isDisabled && !isActive) {
+            btn.onclick = () => loadCustomers(targetPage);
+        }
         return btn;
     };
 
-    /* ⏮ Prev */
-    container.appendChild(createBtn("«", page - 1, false, page === 1));
+    /* --- 1. ปุ่มย้อนกลับ (<) --- */
+    container.appendChild(createBtn(`<i data-lucide="chevron-left" class="w-4 h-4"></i>`, page - 1, false, page === 1, true));
 
-    const pages = new Set();
-    pages.add(1);
-    pages.add(totalPages);
+    /* --- 2. Logic คำนวณเลขหน้า (Smart Ellipsis) --- */
+    const range = [];
+    const delta = 1; // จำนวนหน้าซ้าย-ขวา ของหน้าปัจจุบัน
+    const left = page - delta;
+    const right = page + delta;
 
-    for (let i = page - 1; i <= page + 1; i++) {
-        if (i > 1 && i < totalPages) {
-            pages.add(i);
+    // วนลูปหาหน้าที่ควรแสดง
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= left && i <= right)) {
+            range.push(i);
         }
     }
 
-    const sortedPages = [...pages].sort((a, b) => a - b);
-    let lastPage = 0;
-
-    sortedPages.forEach((p) => {
-        if (p - lastPage > 1) {
-            const dots = document.createElement("span");
-            dots.textContent = "...";
-            dots.className = "px-2 text-gray-500";
-            container.appendChild(dots);
+    let l; // เก็บค่ารอบก่อนหน้า
+    for (let i of range) {
+        if (l) {
+            if (i - l === 2) {
+                // ถ้าห่างกัน 2 ให้เติมเลขตรงกลาง (เช่น 1 .. 3 -> เติม 2)
+                container.appendChild(createBtn(l + 1, l + 1, false, false));
+            } else if (i - l !== 1) {
+                // ถ้าห่างกันเยอะ ให้เติม ...
+                const span = document.createElement("span");
+                span.textContent = "•••";
+                span.className = "px-2 text-gray-300 dark:text-gray-600 select-none tracking-widest text-xs self-center";
+                container.appendChild(span);
+            }
         }
-        container.appendChild(createBtn(p, p, p === page));
-        lastPage = p;
-    });
+        container.appendChild(createBtn(i, i, i === page, false));
+        l = i;
+    }
 
-    /* ⏭ Next */
-    container.appendChild(createBtn("»", page + 1, false, page === totalPages));
+    /* --- 3. ปุ่มถัดไป (>) --- */
+    container.appendChild(createBtn(`<i data-lucide="chevron-right" class="w-4 h-4"></i>`, page + 1, false, page === totalPages, true));
+
+    // สร้าง Icon ใหม่
+    lucide.createIcons();
 }
 
 /* =========================
