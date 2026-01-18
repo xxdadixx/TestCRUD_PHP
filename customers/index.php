@@ -32,9 +32,8 @@ $columnIndexMap = [
     </div>
 
     <div class="flex gap-3 w-full lg:w-auto items-center justify-end">
-
         <div class="relative group">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <div class="absolute inset-y-0 left-0 w-12 flex items-center justify-center pointer-events-none">
                 <i data-lucide="search" class="h-4 w-4 text-gray-500 group-focus-within:text-blue-500 transition-colors"></i>
             </div>
 
