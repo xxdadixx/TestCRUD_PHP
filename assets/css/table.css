@@ -581,10 +581,11 @@ footer a:hover {
    Table Resizer (Drag to Resize)
 ========================= */
 th {
-    position: relative; /* สำคัญ! เพื่อให้ Resizer เกาะติดอยู่ขวาของช่องตัวเอง */
+    position: relative;
+    /* สำคัญ! เพื่อให้ Resizer เกาะติดอยู่ขวาของช่องตัวเอง */
 }
 
-.resizer {
+th .resizer {
     position: absolute;
     top: 0;
     right: 0;
@@ -596,14 +597,49 @@ th {
     z-index: 10;
     background-color: transparent;
     transition: background-color 0.2s;
-    
-    /* 🔥 เพิ่มบรรทัดนี้: เพื่อให้คลิกได้ แม้จะอยู่ใน th.sortable */
-    pointer-events: auto !important; 
+
+    /* สำคัญ: ต้องมี !important เพื่อบังคับให้คลิกได้ */
+    pointer-events: auto !important;
 }
 
-/* เมื่อเอาเมาส์ไปชี้ หรือกำลังลาก ให้ขึ้นสีฟ้า */
-.resizer:hover,
+/* เมื่อเอาเมาส์ไปชี้ หรือกำลังลาก */
+th .resizer:hover,
 .resizing {
-    background-color: #3b82f6; /* Blue-500 */
-    width: 6px; /* ขยายขนาดนิดนึงให้เห็นชัด */
+    background-color: #3b82f6;
+    /* Blue-500 */
+    width: 6px;
+}
+
+/* =========================
+   SweetAlert Customization (Apple Style)
+========================= */
+
+/* ปรับระยะห่างภายใน Popup ให้ดูโปร่งขึ้น */
+div:where(.swal2-container) div:where(.swal2-popup) {
+    padding: 2rem !important;
+    border-radius: 20px !important; /* โค้งมนแบบ Apple Card */
+}
+
+/* ปรับแต่งปุ่มกด (Confirm/Cancel) */
+div:where(.swal2-container) button:where(.swal2-styled).swal2-confirm {
+    background-color: #0071e3 !important; /* Apple Blue */
+    border-radius: 999px !important; /* Full rounded (Pill) */
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    padding: 10px 24px !important;
+    box-shadow: 0 4px 12px rgba(0, 113, 227, 0.3) !important;
+}
+
+div:where(.swal2-container) button:where(.swal2-styled).swal2-cancel {
+    background-color: #e5e5ea !important; /* Apple Gray */
+    color: #1d1d1f !important;
+    border-radius: 999px !important;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    padding: 10px 24px !important;
+}
+
+.dark div:where(.swal2-container) button:where(.swal2-styled).swal2-cancel {
+    background-color: #3a3a3c !important; /* Dark Mode Gray */
+    color: #ffffff !important;
 }
