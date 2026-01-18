@@ -531,7 +531,9 @@ async function loadCustomers(page = 1) {
    RENDER TABLE (WITH HIGHLIGHT)
 ========================= */
 function renderTable(customers) {
-    const getSortClass = (col) => currentSort === col ? 'bg-blue-50 dark:bg-blue-900/30' : '';
+    const getSortClass = (col) => currentSort === col
+        ? 'bg-gray-50/80 dark:bg-white/5'
+        : '';
 
     // ฟังก์ชันช่วย Highlight ข้อความ (ใส่ไว้ข้างในหรือข้างนอกก็ได้)
     const h = (text) => highlightText(text, currentSearch);
@@ -570,17 +572,17 @@ function renderTable(customers) {
             </td>
             
             <td class="p-3 text-center ${getSortClass('status_name')}">
-                <span class="px-3 py-1 rounded-full text-xs font-medium border
-                    ${c.status_name === "Active"
-                /* ✅ Active: สีเขียว (เหมือนเดิม แต่ปรับ Dark Mode ให้ดูนวลขึ้น) */
-                ? "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800"
+    <span class="px-3 py-1 rounded-full text-xs font-medium border
+        ${c.status_name === "Active"
+                /* ✅ Active: สีเขียว */
+                ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800"
 
-                /* 🔴 Inactive: เปลี่ยนจาก เหลือง -> เทา (Gray) */
-                : "bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-700/50 dark:text-gray-400 dark:border-gray-600"
-                }">
-                    ${c.status_name} 
-                    </span>
-            </td>
+                /* 🟡 Inactive: สีเหลือง (Apple Style) */
+                : "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-500 dark:border-yellow-700"
+            }">
+        ${h(c.status_name)}
+    </span>
+</td>
             
             <td class="p-3 text-xs text-gray-500 ${getSortClass('create_at')}">
                 ${h(c.create_at)}
@@ -615,24 +617,23 @@ function renderTable(customers) {
 ========================= */
 function highlightText(text, search) {
     if (!text) return "";
-    const str = String(text); // แปลงเป็น String ก่อนเสมอเผื่อข้อมูลเป็นตัวเลข
-
+    const str = String(text);
     if (!search) return str;
-
-    // 1. แยกคำค้นหาด้วยช่องว่าง (เพื่อให้เหมือน Logic PHP ที่ค้นหาได้หลายคำ)
-    // filter(Boolean) เพื่อตัดช่องว่างทิ้ง
     const terms = search.trim().split(/\s+/).filter(Boolean);
-
     if (terms.length === 0) return str;
-
-    // 2. สร้าง Regex Pattern รวมทุกคำ: (คำ1|คำ2|คำ3)
-    // ใช้ map เพื่อ escape อักขระพิเศษ (เช่น . หรือ +) ป้องกัน Regex พัง
     const patternStr = terms.map(term => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
-    const regex = new RegExp(`(${patternStr})`, 'gi'); // gi = Global + Case Insensitive
+    const regex = new RegExp(`(${patternStr})`, 'gi');
 
-    // 3. แทนที่คำที่เจอด้วย <mark>
     return str.replace(regex, (match) =>
-        `<mark class="bg-yellow-200 text-gray-900 dark:bg-yellow-500/40 dark:text-yellow-100 rounded-sm px-0.5 mx-0.5 font-semibold shadow-sm decoration-clone">${match}</mark>`
+        `<mark class="
+            /* ☀️ Light Mode: ใช้สีเหลืองที่สดขึ้น (Yellow-300) + ตัวอักษรสีดำ (ให้อ่านชัด) */
+            bg-yellow-300 text-black 
+            
+            /* 🌙 Dark Mode: ใช้สีเหลืองอมส้มที่เข้มขึ้น + โปร่งแสง (Yellow-600) + ตัวอักษรสีขาว */
+            dark:bg-yellow-600/80 dark:text-white 
+            
+            rounded-sm px-0.5 mx-0.5 font-semibold shadow-sm decoration-clone
+        ">${match}</mark>`
     );
 }
 
@@ -656,7 +657,7 @@ function changeSort(column) {
    UI HELPERS
 ========================= */
 function updateHeaderUI() {
-    const activeClasses = ['bg-blue-100', 'dark:bg-blue-900'];
+    const activeClasses = ['bg-gray-100', 'dark:bg-white/10'];
 
     document.querySelectorAll('.sortable').forEach(th => {
         const icon = th.querySelector('.sort-icon');
