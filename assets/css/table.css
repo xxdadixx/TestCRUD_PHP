@@ -12,11 +12,19 @@
 th.sortable,
 .sortable {
     cursor: pointer !important;
-    user-select: none; /* Prevents text selection when clicking rapidly */
+    user-select: none;
+    /* Prevents text selection when clicking rapidly */
     transition: background-color 0.15s ease-in-out;
 }
 
 /* Prevent children from blocking pointer events */
+th.sortable,
+.sortable {
+    cursor: pointer !important;
+    user-select: none;
+    transition: background-color 0.15s ease-in-out;
+}
+
 th.sortable *,
 .sortable * {
     pointer-events: none !important;
@@ -24,23 +32,26 @@ th.sortable *,
 
 /* Light Mode Hover */
 th.sortable:hover {
-    background-color: rgba(0, 0, 0, 0.02);
+    background-color: rgba(0, 0, 0, 0.04) !important;
+    /* เพิ่ม !important */
 }
 
 /* Dark Mode Hover */
-/* Matches the class toggled in assets/js/theme.js */
 .dark th.sortable:hover {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    /* เพิ่ม !important */
 }
 
 /* Light Mode Active */
 th.sortable:active {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: rgba(0, 0, 0, 0.08) !important;
+    /* เพิ่ม !important */
 }
 
 /* Dark Mode Active */
 .dark th.sortable:active {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    /* เพิ่ม !important */
 }
 
 /* =========================
@@ -52,7 +63,8 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: #f5f5f7 !important; /* Apple Page Background */
+    background-color: #f5f5f7 !important;
+    /* Apple Page Background */
     color: #1d1d1f !important;
     font-size: 16px !important;
     line-height: 1.5 !important;
@@ -66,24 +78,27 @@ body {
 
 /* Headings */
 h1 {
-    font-size: 34px !important;
-    font-weight: 600 !important;
-    letter-spacing: -0.02em !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.025em !important;
     color: #1d1d1f !important;
 }
-.dark h1 { color: #f5f5f7 !important; }
+
+.dark h1 {
+    color: #f5f5f7 !important;
+}
 
 /* Container / Card - Apple Style */
 .rounded-xl {
     border-radius: 18px !important;
     /* Static shadow for depth, aurora handled by wrapper */
-    box-shadow: 0 4px 24px rgba(0,0,0,0.04);
-    border: 1px solid rgba(0,0,0,0.05);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.05);
     background-color: #ffffff !important;
     transition: background-color 0.6s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.6s ease;
     position: relative;
     z-index: 1;
 }
+
 .dark .rounded-xl {
     background-color: #1c1c1e !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -91,44 +106,73 @@ h1 {
 }
 
 /* =========================
-   Real Animated Aurora (Orbiting)
+   Aurora Glow (Wave Style) - ไม่หมุน
 ========================= */
+
 .aurora-container {
     position: relative;
     z-index: 0;
+    /* แนะนำให้ลบ overflow: hidden ออก (ถ้ามี) เพื่อให้แสงฟุ้งได้เต็มที่ */
 }
 
 .aurora-orb {
     position: absolute;
     z-index: -1;
-    top: 50%;
-    left: 50%;
-    width: 300px;
-    height: 300px;
-    margin-top: -150px;
-    margin-left: -150px;
-    background: radial-gradient(circle, rgba(59, 130, 246, 0.6), rgba(59, 130, 246, 0) 70%);
-    filter: blur(50px);
-    animation: aurora-orbit 10s linear infinite;
-    pointer-events: none;
+    /* ซ่อนไว้หลังตาราง */
+
+    /* สั่งให้ขยายออกมารอบๆ ตารางทุกด้าน 15px */
+    inset: -15px;
+
+    /* สร้างสี Aurora (ฟ้า-เขียว-ม่วง) แบบไล่เฉดแนวนอน */
+    background: linear-gradient(120deg,
+            #3b82f6,
+            /* Blue */
+            #10b981,
+            /* Emerald (เขียวแสงเหนือ) */
+            #8b5cf6,
+            /* Purple */
+            #3b82f6
+            /* Blue (วนกลับมาสีเดิมเพื่อให้ Loop เนียน) */
+        );
+
+    /* ขยายขนาดพื้นหลังให้ใหญ่กว่ากล่อง 3 เท่า เพื่อให้เราเลื่อนสีไปมาได้ */
+    background-size: 300% 300%;
+
+    /* เบลอให้แสงฟุ้งเป็นธรรมชาติ */
+    filter: blur(35px);
+    opacity: 0.7;
+
+    /* ปรับความโค้งให้รับกับมุมของตาราง (ตารางคุณโค้ง 18px) */
+    border-radius: 28px;
+
+    /* ใช้ Animation แบบ Wave (เลื่อนไป-กลับ) */
+    animation: aurora-wave 6s ease infinite;
 }
 
+/* Dark Mode: ลดความสว่างลงนิดหน่อยให้ดูหรู */
 .dark .aurora-orb {
-    background: radial-gradient(circle, rgba(59, 130, 246, 0.8), rgba(59, 130, 246, 0) 70%);
+    opacity: 0.5;
+    filter: blur(45px);
 }
 
-@keyframes aurora-orbit {
-    from {
-        transform: translate(-50%, -50%) rotate(0deg) translateX(300px) rotate(0deg);
+/* Keyframes: สั่งให้พื้นหลังเลื่อนตำแหน่งไป-มา (ไม่หมุน) */
+@keyframes aurora-wave {
+    0% {
+        background-position: 0% 50%;
     }
-    to {
-        transform: translate(-50%, -50%) rotate(360deg) translateX(300px) rotate(-360deg);
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
     }
 }
 
 /* Table Header - Clean, Uppercase, Spaced */
 thead th {
-    background-color: rgba(255,255,255,0.8) !important;
+    background-color: rgba(255, 255, 255, 0.8) !important;
     backdrop-filter: blur(20px);
     color: #86868b !important;
     font-size: 13px !important;
@@ -166,14 +210,22 @@ tbody td {
 tbody tr:hover td {
     background-color: rgba(0, 0, 0, 0.02) !important;
 }
+
 .dark tbody tr:hover td {
     background-color: rgba(255, 255, 255, 0.03) !important;
 }
 
 /* Row Entry Animation (Staggered) */
 @keyframes appleSlideIn {
-    0% { opacity: 0; transform: translateY(10px) scale(0.99); }
-    100% { opacity: 1; transform: translateY(0) scale(1); }
+    0% {
+        opacity: 0;
+        transform: translateY(10px) scale(0.99);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 tbody tr {
@@ -181,24 +233,61 @@ tbody tr {
 }
 
 /* Stagger delays for first 10 rows */
-tbody tr:nth-child(1) { animation-delay: 0.03s; }
-tbody tr:nth-child(2) { animation-delay: 0.06s; }
-tbody tr:nth-child(3) { animation-delay: 0.09s; }
-tbody tr:nth-child(4) { animation-delay: 0.12s; }
-tbody tr:nth-child(5) { animation-delay: 0.15s; }
-tbody tr:nth-child(6) { animation-delay: 0.18s; }
-tbody tr:nth-child(7) { animation-delay: 0.21s; }
-tbody tr:nth-child(8) { animation-delay: 0.24s; }
-tbody tr:nth-child(9) { animation-delay: 0.27s; }
-tbody tr:nth-child(10) { animation-delay: 0.30s; }
+tbody tr:nth-child(1) {
+    animation-delay: 0.03s;
+}
+
+tbody tr:nth-child(2) {
+    animation-delay: 0.06s;
+}
+
+tbody tr:nth-child(3) {
+    animation-delay: 0.09s;
+}
+
+tbody tr:nth-child(4) {
+    animation-delay: 0.12s;
+}
+
+tbody tr:nth-child(5) {
+    animation-delay: 0.15s;
+}
+
+tbody tr:nth-child(6) {
+    animation-delay: 0.18s;
+}
+
+tbody tr:nth-child(7) {
+    animation-delay: 0.21s;
+}
+
+tbody tr:nth-child(8) {
+    animation-delay: 0.24s;
+}
+
+tbody tr:nth-child(9) {
+    animation-delay: 0.27s;
+}
+
+tbody tr:nth-child(10) {
+    animation-delay: 0.30s;
+}
 
 /* Loading State Pulse */
 td[colspan="11"] {
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite !important;
 }
+
 @keyframes pulse {
-    0%, 100% { opacity: 0.5; }
-    50% { opacity: 1; }
+
+    0%,
+    100% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 1;
+    }
 }
 
 /* Soften the Sorted Column Highlight */
@@ -206,10 +295,12 @@ td[colspan="11"] {
 .bg-blue-100 {
     background-color: #f5f5f7 !important;
 }
+
 /* Cell Highlight */
 .bg-blue-50 {
     background-color: #fbfbfd !important;
 }
+
 .dark .dark\:bg-blue-900,
 .dark .bg-blue-900 {
     background-color: rgba(255, 255, 255, 0.03) !important;
@@ -225,19 +316,23 @@ tbody td span.rounded-full {
     box-shadow: none !important;
     border-radius: 6px !important;
 }
+
 /* Apple-style Status Colors */
 .bg-green-100 {
     background-color: rgba(52, 199, 89, 0.1) !important;
     color: #008535 !important;
 }
+
 .dark .bg-green-900 {
     background-color: rgba(48, 209, 88, 0.15) !important;
     color: #30d158 !important;
 }
+
 .bg-yellow-100 {
     background-color: rgba(255, 149, 0, 0.1) !important;
     color: #9a5800 !important;
 }
+
 .dark .bg-yellow-900 {
     background-color: rgba(255, 159, 10, 0.15) !important;
     color: #ff9f0a !important;
@@ -250,22 +345,37 @@ tbody td button {
     border-radius: 8px !important;
     transform: scale(1);
 }
+
 tbody td button:hover {
     transform: scale(1.05) !important;
-    background-color: rgba(0,0,0,0.05);
+    background-color: rgba(0, 0, 0, 0.05);
     opacity: 1;
 }
+
 tbody td button:active {
     transform: scale(0.95) !important;
 }
+
 .dark tbody td button:hover {
-    background-color: rgba(255,255,255,0.1);
+    background-color: rgba(255, 255, 255, 0.1);
 }
+
 /* Icon Colors */
-.text-blue-600 { color: #0071e3 !important; }
-.dark .text-blue-600 { color: #2997ff !important; }
-.text-red-600 { color: #ff3b30 !important; }
-.dark .text-red-600 { color: #ff453a !important; }
+.text-blue-600 {
+    color: #0071e3 !important;
+}
+
+.dark .text-blue-600 {
+    color: #2997ff !important;
+}
+
+.text-red-600 {
+    color: #ff3b30 !important;
+}
+
+.dark .text-red-600 {
+    color: #ff453a !important;
+}
 
 /* Pagination - Modern Cards */
 #pagination button {
@@ -280,16 +390,21 @@ tbody td button:active {
     color: #1d1d1f !important;
     transform: scale(1);
 }
-.dark #pagination button { color: #f5f5f7 !important; }
+
+.dark #pagination button {
+    color: #f5f5f7 !important;
+}
 
 #pagination button:not(:disabled):hover {
     transform: translateY(-1px) !important;
     background-color: #f5f5f7 !important;
     box-shadow: none !important;
 }
+
 #pagination button:not(:disabled):active {
     transform: scale(0.96) !important;
 }
+
 .dark #pagination button:not(:disabled):hover {
     background-color: #2c2c2e !important;
 }
@@ -299,6 +414,7 @@ tbody td button:active {
     background-color: #0071e3 !important;
     color: white !important;
 }
+
 .dark #pagination button.bg-blue-600 {
     background-color: #2997ff !important;
 }
@@ -315,13 +431,15 @@ tbody td button:active {
     height: 36px;
     transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
 }
+
 .dark #searchInput {
     background-color: #2c2c2e !important;
     border-color: #424245 !important;
     color: #f5f5f7 !important;
 }
+
 #searchInput:focus {
-    box-shadow: 0 0 0 4px rgba(0,113,227,0.12) !important;
+    box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.12) !important;
     border-color: #0071e3 !important;
     transform: scale(1.01);
 }
@@ -337,11 +455,13 @@ button.bg-blue-500 {
     transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
     transform: scale(1);
 }
+
 button.bg-blue-500:hover {
     background-color: #0077ed !important;
     transform: scale(1.02) !important;
     box-shadow: 0 4px 12px rgba(0, 113, 227, 0.3) !important;
 }
+
 button.bg-blue-500:active {
     transform: scale(0.96) !important;
 }
@@ -382,14 +502,15 @@ footer a:hover {
 }
 
 /* Reduced Motion Preference */
-@media (prefers-reduced-motion: reduce) {
+/* @media (prefers-reduced-motion: reduce) {
     *, ::before, ::after {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
         scroll-behavior: auto !important;
     }
-}
+} 
+*/
 
 /* =========================
    Theme Toggle - Apple Style
@@ -403,14 +524,16 @@ footer a:hover {
     cursor: pointer;
     padding: 0 !important;
     border-radius: 50% !important;
-    color: #111827 !important; /* Apple Light Mode Text */
+    color: #111827 !important;
+    /* Apple Light Mode Text */
     transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1) !important;
     display: inline-flex !important;
     align-items: center;
     justify-content: center;
     width: 40px !important;
     height: 40px !important;
-    margin-left: 8px;/* Hides any fallback text */
+    margin-left: 8px;
+    /* Hides any fallback text */
     outline: none !important;
     display: inline-flex;
     align-items: center;
@@ -418,7 +541,8 @@ footer a:hover {
 }
 
 #toggleDark svg {
-    stroke: currentColor !important; /* FORCE SVG to take parent color */
+    stroke: currentColor !important;
+    /* FORCE SVG to take parent color */
     pointer-events: none;
     font-size: initial !important;
     line-height: initial !important;
@@ -439,7 +563,8 @@ footer a:hover {
 }
 
 .dark #toggleDark {
-    color: #f5f5f7 !important; /* Apple Dark Mode Text */
+    color: #f5f5f7 !important;
+    /* Apple Dark Mode Text */
     border-color: rgba(255, 255, 255, 0.2) !important;
 }
 
@@ -450,4 +575,35 @@ footer a:hover {
 
 .dark #toggleDark:active {
     transform: scale(0.9) rotate(5deg);
+}
+
+/* =========================
+   Table Resizer (Drag to Resize)
+========================= */
+th {
+    position: relative; /* สำคัญ! เพื่อให้ Resizer เกาะติดอยู่ขวาของช่องตัวเอง */
+}
+
+.resizer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 5px;
+    height: 100%;
+    cursor: col-resize;
+    user-select: none;
+    touch-action: none;
+    z-index: 10;
+    background-color: transparent;
+    transition: background-color 0.2s;
+    
+    /* 🔥 เพิ่มบรรทัดนี้: เพื่อให้คลิกได้ แม้จะอยู่ใน th.sortable */
+    pointer-events: auto !important; 
+}
+
+/* เมื่อเอาเมาส์ไปชี้ หรือกำลังลาก ให้ขึ้นสีฟ้า */
+.resizer:hover,
+.resizing {
+    background-color: #3b82f6; /* Blue-500 */
+    width: 6px; /* ขยายขนาดนิดนึงให้เห็นชัด */
 }
