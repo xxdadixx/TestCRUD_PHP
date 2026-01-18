@@ -630,3 +630,25 @@ function initResizableTable() {
 
 // เรียกใช้งานเมื่อโหลดหน้าเว็บเสร็จ
 document.addEventListener('DOMContentLoaded', initResizableTable);
+
+/* =========================
+   SEARCH SHORTCUT (Ctrl/Cmd + K)
+========================= */
+document.addEventListener('keydown', (e) => {
+    // เช็คว่ากด Ctrl+K หรือ Meta(Cmd)+K
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault(); // ป้องกัน Browser เปิด Search bar ของตัวเอง
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.focus();
+        }
+    }
+
+    // กด ESC เพื่อออกจากช่องค้นหา
+    if (e.key === 'Escape') {
+        const searchInput = document.getElementById('searchInput');
+        if (document.activeElement === searchInput) {
+            searchInput.blur();
+        }
+    }
+});
