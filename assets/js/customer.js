@@ -89,7 +89,7 @@ function renderPagination(page, totalPages) {
 }
 
 /* =========================
-   ADD CUSTOMER (UPDATED THEME)
+   ADD CUSTOMER (WITH PHOTO)
 ========================= */
 function openAddCustomer() {
     Swal.fire({
@@ -99,6 +99,19 @@ function openAddCustomer() {
         html: `
             <div class="text-left space-y-5 px-1">
                 
+                <div class="flex flex-col items-center gap-3">
+                    <div class="relative group">
+                        <img id="preview_img_add" src="https://cdn-icons-png.flaticon.com/512/847/847969.png" 
+                             class="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-gray-700 shadow-lg">
+                        <label for="photo_input_add" 
+                               class="absolute bottom-0 right-0 bg-blue-600 text-white p-1.5 rounded-full cursor-pointer hover:bg-blue-700 shadow-sm transition">
+                            <i data-lucide="camera" class="w-4 h-4"></i>
+                        </label>
+                        <input type="file" id="photo_input_add" class="hidden" accept="image/*" onchange="previewImageAdd(this)">
+                    </div>
+                    <span class="text-xs text-gray-400">Upload profile picture</span>
+                </div>
+
                 <div>
                     <label class="${labelClass}">Customer Code</label>
                     <div class="relative">
@@ -160,7 +173,6 @@ function openAddCustomer() {
         cancelButtonText: "Cancel",
         focusConfirm: false,
 
-        // 🛠️ ส่วน Logic เหมือนเดิม (ไม่ต้องแก้)
         preConfirm: () => {
             const data = {
                 customer_code: document.getElementById("customer_code").value.trim(),
@@ -183,21 +195,91 @@ function openAddCustomer() {
             if (!nationalIdRegex.test(cleanNationalId)) { Swal.showValidationMessage("National ID must be 13 digits"); return false; }
             data.national_id = cleanNationalId;
 
-            return data;
+            // ✅ Return data พร้อมกับ File Object (ถ้ามี)
+            const fileInput = document.getElementById('photo_input_add');
+            return {
+                textData: data,
+                photoFile: fileInput.files.length > 0 ? fileInput.files[0] : null
+            };
         },
         didOpen: () => {
-            lucide.createIcons(); // ให้ไอคอน Lock ทำงาน
+            lucide.createIcons();
         }
-    }).then((result) => {
+    }).then(async (result) => {
         if (result.isConfirmed) {
-            ajaxPost(API.customer.store, result.value);
+            const { textData, photoFile } = result.value;
+
+            try {
+                // 1. สร้างลูกค้าก่อน (Create Text Data)
+                const createRes = await fetch(API.customer.store, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(textData),
+                });
+                const createResult = await createRes.json();
+
+                if (createResult.status !== "success") {
+                    // 🔥 แก้ตรงนี้: ให้โชว์ Debug Message ถ้ามี
+                    let errorMsg = createResult.message;
+                    if (createResult.debug) {
+                        errorMsg += "\n(" + createResult.debug + ")";
+                    }
+                    throw new Error(errorMsg);
+                }
+
+                // 2. ถ้ามีรูป -> อัปโหลดรูปตามไป (Upload Photo)
+                if (photoFile && createResult.customer_id) {
+                    const formData = new FormData();
+                    formData.append('photo', photoFile);
+                    formData.append('customer_id', createResult.customer_id); // ใช้ ID ที่เพิ่งได้มา
+
+                    const uploadRes = await fetch(`${window.APP_BASE_URL}/customers/api/upload_photo.php`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const uploadResult = await uploadRes.json();
+
+                    if (uploadResult.status !== 'success') {
+                        // ถ้าอัปรูปไม่ผ่าน ให้เตือนแต่ไม่ถือว่าล้มเหลวทั้งหมด (เพราะสร้าง user ได้แล้ว)
+                        Swal.fire("Warning", "Customer created but photo upload failed: " + uploadResult.message, "warning");
+                        loadCustomers(currentPage);
+                        return;
+                    }
+                }
+
+                // 3. สำเร็จทุกขั้นตอน
+                await Swal.fire({
+                    title: "Success",
+                    text: "Customer created successfully!",
+                    icon: "success",
+                    ...swalTheme()
+                });
+                loadCustomers(currentPage);
+
+            } catch (err) {
+                console.error(err); // ดูใน Console F12 ได้ด้วย
+                Swal.fire({
+                    title: "Error",
+                    text: err.message || "Something went wrong",
+                    icon: "error",
+                    ...swalTheme()
+                });
+            }
         }
     });
 }
 
-/* =========================
-   UPDATE CUSTOMER (UPDATED THEME)
-========================= */
+// Helper สำหรับ Preview รูปในหน้า Add
+function previewImageAdd(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            document.getElementById('preview_img_add').src = e.target.result;
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
 /* =========================
    EDIT CUSTOMER (WITH PHOTO UPLOAD)
 ========================= */

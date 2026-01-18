@@ -81,12 +81,15 @@ try {
         $data['status_id']
     ]);
 
+    $newCustomerId = $pdo->lastInsertId();
+
     $pdo->commit();
 
     echo json_encode([
         "status" => "success",
         "message" => "Customer added successfully",
-        "customer_code" => $customerCode
+        "customer_code" => $customerCode,
+        "customer_id" => $newCustomerId // 🔥 ส่ง ID กลับไปให้ JS ใช้
     ]);
     exit;
 
