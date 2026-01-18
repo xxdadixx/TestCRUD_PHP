@@ -298,9 +298,9 @@ function openEditCustomer(customerId) {
 
             // ตรวจสอบรูปภาพ: ถ้ามีรูปให้ใช้ path จริง, ถ้าไม่มีใช้ Default User Icon
             // หมายเหตุ: APP_BASE_URL มาจาก header.php ที่เราประกาศไว้
-            const photoUrl = c.photo 
-                ? `${window.APP_BASE_URL}/photos/${c.photo}?t=${new Date().getTime()}` 
-                : "https://cdn-icons-png.flaticon.com/512/847/847969.png"; 
+            const photoUrl = c.photo
+                ? `${window.APP_BASE_URL}/photos/${c.photo}?t=${new Date().getTime()}`
+                : "https://cdn-icons-png.flaticon.com/512/847/847969.png";
 
             Swal.fire({
                 title: "Edit Customer",
@@ -343,9 +343,9 @@ function openEditCustomer(customerId) {
                             <div>
                                 <label class="${labelClass}">Gender</label>
                                 <select id="gender" class="${inputClass} appearance-none">
-                                    <option value="Unspecified" ${c.gender==="Unspecified"?"selected":""}>Unspecified</option>
-                                    <option value="Male" ${c.gender==="Male"?"selected":""}>Male</option>
-                                    <option value="Female" ${c.gender==="Female"?"selected":""}>Female</option>
+                                    <option value="Unspecified" ${c.gender === "Unspecified" ? "selected" : ""}>Unspecified</option>
+                                    <option value="Male" ${c.gender === "Male" ? "selected" : ""}>Male</option>
+                                    <option value="Female" ${c.gender === "Female" ? "selected" : ""}>Female</option>
                                 </select>
                             </div>
                             <div>
@@ -362,14 +362,14 @@ function openEditCustomer(customerId) {
                             <div>
                                 <label class="${labelClass}">Status</label>
                                 <select id="status_id" class="${inputClass} appearance-none">
-                                    <option value="1" ${c.status_id==1?"selected":""}>Active</option>
-                                    <option value="2" ${c.status_id==2?"selected":""}>Inactive</option>
+                                    <option value="1" ${c.status_id == 1 ? "selected" : ""}>Active</option>
+                                    <option value="2" ${c.status_id == 2 ? "selected" : ""}>Inactive</option>
                                 </select>
                             </div>
                         </div>
                     </div>`,
                 showCancelButton: true, confirmButtonText: "Save Changes", cancelButtonText: "Cancel", focusConfirm: false,
-                
+
                 // 🔥 Logic การบันทึก: อัปโหลดรูปก่อน -> ถ้าผ่านค่อยส่ง Text
                 preConfirm: async () => {
                     // 1. เก็บค่า Text
@@ -400,7 +400,7 @@ function openEditCustomer(customerId) {
                                 body: formData
                             });
                             const uploadResult = await uploadRes.json();
-                            
+
                             if (uploadResult.status !== 'success') {
                                 Swal.showValidationMessage("Photo Upload Failed: " + uploadResult.message);
                                 return false;
@@ -414,8 +414,8 @@ function openEditCustomer(customerId) {
                     return data; // ส่งข้อมูล Text ไปให้ .then ข้างล่างจัดการต่อ
                 },
                 didOpen: () => lucide.createIcons()
-            }).then((result) => { 
-                if (result.isConfirmed) ajaxPost(API.customer.update, result.value); 
+            }).then((result) => {
+                if (result.isConfirmed) ajaxPost(API.customer.update, result.value);
             });
         })
         .catch(err => {
