@@ -19,10 +19,19 @@ $columnIndexMap = [
 
 <link rel="stylesheet" href="<?= $BASE_URL ?>/assets/css/table.css">
 
-<div class="flex justify-between items-center mb-4">
-    <h1 class="text-2xl font-bold">Customer List</h1>
+<div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
+    <div>
+        <h1 class="text-4xl font-bold tracking-tight mb-1">
+            <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
+                Customer List
+            </span>
+        </h1>
+        <p class="mt-1 text-lg text-gray-500 dark:text-gray-400 font-normal">
+            Manage your customers and organize data efficiently.
+        </p>
+    </div>
 
-    <div class="flex gap-3 w-full lg:w-auto">
+    <div class="flex gap-3 w-full md:w-auto">
         <!-- Search -->
         <input
             type="text"
@@ -55,7 +64,7 @@ $columnIndexMap = [
         <div class="rounded-xl shadow bg-white dark:bg-gray-800 overflow-x-auto">
             <table class="min-w-full">
                 <thead class="bg-gray-200 dark:bg-gray-700">
-                    <tr class="border-t border-gray-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-gray-700 transition">
+                    <tr class="whitespace-nowrap border-t border-gray-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-gray-700 transition">
                         <th class="p-3 text-center">No.</th>
                         <th class="p-3 text-center sortable" data-column="customer_id">
                             ID <span class="sort-icon"></span>

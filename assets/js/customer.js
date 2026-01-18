@@ -417,16 +417,20 @@ async function loadCustomers(page = 1) {
 function renderTable(customers) {
     const getSortClass = (col) => currentSort === col ? 'bg-blue-50 dark:bg-blue-900' : '';
 
-    if (!customers || customers.length === 0) {
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="11" class="p-6 text-center text-gray-500">
-                    No customers found
-                </td>
+    tableBody.innerHTML = customers
+        .map(
+            (c, index) => `
+        <tr class="whitespace-nowrap border-t border-gray-200 dark:border-gray-700
+                   hover:bg-blue-50 dark:hover:bg-gray-700 transition">
+            <td class="p-3 text-center">${index + 1}</td>
+            <td class="p-3 ${getSortClass('customer_id')}">${c.customer_id}</td>
+            <td class="p-3 ${getSortClass('customer_code')}">${c.customer_code}</td>
+            <td class="p-3 ${getSortClass('first_name')}">${c.name}</td>
+            
             </tr>
-        `;
-        return;
-    }
+    `,
+        )
+        .join("");
 
     tableBody.innerHTML = customers
         .map(
