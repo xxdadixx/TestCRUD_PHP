@@ -465,9 +465,9 @@ function openViewCustomer(customerId) {
             const c = res.data;
 
             // 2. เตรียมรูปภาพ
-            const photoUrl = c.photo 
-                ? `${window.APP_BASE_URL}/photos/${c.photo}?t=${new Date().getTime()}` 
-                : "https://cdn-icons-png.flaticon.com/512/847/847969.png"; 
+            const photoUrl = c.photo
+                ? `${window.APP_BASE_URL}/photos/${c.photo}?t=${new Date().getTime()}`
+                : "https://cdn-icons-png.flaticon.com/512/847/847969.png";
 
             // 3. กำหนดสีของช่อง Status (Active = เขียว, Inactive = เหลือง)
             const statusInputClass = c.status_id == 1
