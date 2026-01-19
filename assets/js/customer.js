@@ -741,70 +741,48 @@ async function loadCustomers(page = 1) {
 /* =========================
    RENDER TABLE (WITH HIGHLIGHT)
 ========================= */
-function renderTable(customers) {
-    const getSortClass = (col) => currentSort === col
-        ? 'bg-gray-50/80 dark:bg-white/5'
-        : '';
 
-    // ฟังก์ชันช่วย Highlight ข้อความ (ใส่ไว้ข้างในหรือข้างนอกก็ได้)
+function renderTable(customers) {
+    // 🔥 Reset Layout: ทุกครั้งที่ข้อมูลใหม่มา ให้กลับเป็น Auto เพื่อจัดระเบียบใหม่
+    const table = document.querySelector('table');
+    if (table) {
+        table.style.tableLayout = 'auto'; 
+        table.style.width = '';
+        table.querySelectorAll('th').forEach(th => th.style.width = '');
+    }
+
+    const getSortClass = (col) => currentSort === col ? 'bg-gray-50/80 dark:bg-white/5' : '';
     const h = (text) => highlightText(text, currentSearch);
 
-    tableBody.innerHTML = customers
-        .map((c, index) => `
+    tableBody.innerHTML = customers.map((c, index) => `
         <tr class="border-t border-gray-200 dark:border-gray-700
                    hover:bg-blue-50 dark:hover:bg-gray-700/50 transition duration-150 cursor-pointer"
                     onclick="if(!event.target.closest('button')) openViewCustomer(${c.customer_id})">
             
-            <td class="p-3 text-center text-gray-500 dark:text-gray-400">
+            <td class="text-center text-gray-500 dark:text-gray-400">
                 ${(currentPage - 1) * 10 + (index + 1)}
             </td>
+            <td class="${getSortClass('customer_id')}">${h(c.customer_id)}</td>
+            <td class="${getSortClass('customer_code')} font-mono text-sm">${h(c.customer_code)}</td>
+            <td class="${getSortClass('first_name')} font-medium text-gray-900 dark:text-white">${h(c.name)}</td>
+            <td class="${getSortClass('gender')}">${h(c.gender)}</td>
+            <td class="${getSortClass('date_of_birth')}">${h(c.date_of_birth)}</td>
+            <td class="font-mono text-sm text-gray-600 dark:text-gray-300">${h(c.national_id)}</td>
             
-            <td class="p-3 ${getSortClass('customer_id')}">
-                ${h(c.customer_id)}
+            <td class="text-center ${getSortClass('status_name')}">
+                <span class="px-3 py-1 rounded-full text-xs font-medium border
+                    ${c.status_name === "Active"
+                        ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800"
+                        : "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-500 dark:border-yellow-700"
+                    }">
+                    ${h(c.status_name)}
+                </span>
             </td>
             
-            <td class="p-3 ${getSortClass('customer_code')} font-mono text-sm">
-                ${h(c.customer_code)}
-            </td>
+            <td class="text-xs text-gray-500 ${getSortClass('create_at')}">${h(c.create_at)}</td>
+            <td class="text-xs text-gray-500 ${getSortClass('update_at')}">${h(c.update_at)}</td>
             
-            <td class="p-3 ${getSortClass('first_name')} font-medium text-gray-900 dark:text-white">
-                ${h(c.name)}
-            </td>
-            
-            <td class="p-3 ${getSortClass('gender')}">
-                ${h(c.gender)}
-            </td>
-            
-            <td class="p-3 ${getSortClass('date_of_birth')}">
-                ${h(c.date_of_birth)}
-            </td>
-            
-            <td class="p-3 font-mono text-sm text-gray-600 dark:text-gray-300">
-                ${h(c.national_id)}
-            </td>
-            
-            <td class="p-3 text-center ${getSortClass('status_name')}">
-    <span class="px-3 py-1 rounded-full text-xs font-medium border
-        ${c.status_name === "Active"
-                /* ✅ Active: สีเขียว */
-                ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800"
-
-                /* 🟡 Inactive: สีเหลือง (Apple Style) */
-                : "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-500 dark:border-yellow-700"
-            }">
-        ${h(c.status_name)}
-    </span>
-</td>
-            
-            <td class="p-3 text-xs text-gray-500 ${getSortClass('create_at')}">
-                ${h(c.create_at)}
-            </td>
-            
-            <td class="p-3 text-xs text-gray-500 ${getSortClass('update_at')}">
-                ${h(c.update_at)}
-            </td>
-            
-            <td class="p-3 text-center">
+            <td class="text-center">
                 <div class="flex justify-center gap-2">
                     <button onclick="openEditCustomer(${c.customer_id})"
                         class="p-1.5 rounded-md text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition">
@@ -819,8 +797,8 @@ function renderTable(customers) {
         </tr>
     `).join("");
 
-    // อย่าลืมสั่งให้ icon ทำงานหลังจากวาดตารางเสร็จ
     lucide.createIcons();
+    initResizableTable(); 
 }
 
 /* =========================
