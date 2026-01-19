@@ -75,6 +75,8 @@ if (!$customer) {
     </button>
 
     <a href="index.php" class="ml-3 text-gray-600">Cancel</a>
+
+    </div>
 </form>
 
 <script src="<?= $BASE_URL ?>/assets/js/api.js"></script>
