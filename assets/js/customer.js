@@ -893,6 +893,10 @@ function updateHeaderUI() {
 /* =========================
    RESIZABLE COLUMNS (Fix Sort Conflict)
 ========================= */
+
+/* =========================
+   RESIZABLE (HYBRID SYSTEM)
+========================= */
 function initResizableTable() {
     const table = document.querySelector('table');
     if (!table) return;
@@ -900,27 +904,42 @@ function initResizableTable() {
     const cols = table.querySelectorAll('th');
 
     cols.forEach((col) => {
-        // 1. สร้างแท่ง Resizer
         let resizer = col.querySelector('.resizer');
         if (!resizer) {
             resizer = document.createElement('div');
             resizer.className = 'resizer';
-            // ป้องกันคลิกที่เส้นแล้ว Sort
             resizer.addEventListener('click', (e) => e.stopPropagation());
             col.appendChild(resizer);
         }
 
         let startX = 0;
-        let startW = 0;
-        let isDragging = false; // 🔥 ตัวแปรเช็คว่ากำลังลากจริงไหม
+        let startColW = 0;
+        let startTableW = 0;
+        let isDragging = false;
 
         const mouseDownHandler = (e) => {
             e.preventDefault();
-            e.stopPropagation(); // หยุดไม่ให้ event ทะลุไปหา th ตั้งแต่เริ่มกด
+            e.stopPropagation();
+
+            // 1. Freeze: เปลี่ยน Auto -> Fixed ทันทีที่เริ่มจับ
+            if (table.style.tableLayout !== 'fixed') {
+                const currentWidths = [];
+                table.querySelectorAll('th').forEach(c => currentWidths.push(c.getBoundingClientRect().width));
+
+                // ล็อคความกว้างทุกช่อง
+                table.querySelectorAll('th').forEach((c, i) => {
+                    c.style.width = `${currentWidths[i]}px`;
+                });
+
+                // ล็อคความกว้างตาราง
+                table.style.width = `${table.getBoundingClientRect().width}px`;
+                table.style.tableLayout = 'fixed';
+            }
 
             startX = e.clientX;
-            startW = col.getBoundingClientRect().width;
-            isDragging = false; // เริ่มต้นยังไม่นับว่าลาก
+            startColW = col.getBoundingClientRect().width;
+            startTableW = table.getBoundingClientRect().width;
+            isDragging = false;
 
             document.addEventListener('mousemove', mouseMoveHandler);
             document.addEventListener('mouseup', mouseUpHandler);
@@ -930,33 +949,32 @@ function initResizableTable() {
         };
 
         const mouseMoveHandler = (e) => {
-            // ถ้าเมาส์ขยับเกินนิดหน่อย ให้ถือว่า "กำลังลาก"
             isDragging = true;
-
             requestAnimationFrame(() => {
                 const dx = e.clientX - startX;
-                col.style.width = `${Math.max(50, startW + dx)}px`;
+                // คำนวณความกว้างใหม่
+                const newColW = Math.max(50, startColW + dx);
+                const realDiff = newColW - startColW;
+
+                // ขยายช่อง + ขยายตารางไปพร้อมกัน
+                col.style.width = `${newColW}px`;
+                table.style.width = `${startTableW + realDiff}px`;
             });
         };
 
-        const mouseUpHandler = (e) => {
+        const mouseUpHandler = () => {
             document.removeEventListener('mousemove', mouseMoveHandler);
             document.removeEventListener('mouseup', mouseUpHandler);
-
             resizer.classList.remove('resizing');
             document.body.style.cursor = '';
 
-            // 🔥 พระเอกของเรา: ถ้ามีการลากเกิดขึ้น ให้ "ฆ่า" event click ที่จะตามมาทิ้งซะ
             if (isDragging) {
                 const killClick = (ev) => {
-                    ev.stopPropagation(); // หยุดการกระจาย
-                    ev.preventDefault();  // หยุดการทำงานปกติ
-                    window.removeEventListener('click', killClick, true); // ลบตัวเองทิ้ง
+                    ev.stopPropagation();
+                    ev.preventDefault();
+                    window.removeEventListener('click', killClick, true);
                 };
-                // ดักจับ click ในระยะ Capture (ทำงานก่อนถึง th)
                 window.addEventListener('click', killClick, true);
-
-                // กันเหนียว: ลบตัวดักทิ้งถ้าไม่มี click เกิดขึ้นในเวลาสั้นๆ
                 setTimeout(() => window.removeEventListener('click', killClick, true), 100);
             }
         };
