@@ -1,11 +1,14 @@
 <?php
+// 🔥 เรียกใช้ไฟล์ Config และ Validator ให้ถูกต้อง
 require __DIR__ . "/../../config/database.php";
 require __DIR__ . "/../../validators/CustomerValidator.php";
 
 header('Content-Type: application/json');
 
+// รับค่า JSON
 $data = json_decode(file_get_contents("php://input"), true);
 
+// 1. ตรวจสอบว่ามีข้อมูลส่งมาไหม
 if (!$data) {
     echo json_encode([
         "status" => "error",
@@ -14,7 +17,7 @@ if (!$data) {
     exit;
 }
 
-// Validate
+// 2. ✅ เรียกใช้ Validator ของคุณ (ที่ผมเผลอลบไป)
 $error = CustomerValidator::validate($data);
 if ($error) {
     echo json_encode([
@@ -28,10 +31,11 @@ try {
     $pdo->beginTransaction();
 
     /* =========================
-       GENERATE CUSTOMER CODE
+       3. ✅ GEN CODE: สร้างรหัสลูกค้า (CUS-YYYY-XXXX)
     ========================= */
     $year = date('Y');
 
+    // ล็อคตาราง Sequence เพื่อกันเลขชนกัน (FOR UPDATE)
     $seqStmt = $pdo->prepare("
         SELECT last_number
         FROM customer_sequences
@@ -43,27 +47,18 @@ try {
 
     if ($row) {
         $next = $row['last_number'] + 1;
-
-        $updateSeq = $pdo->prepare("
-            UPDATE customer_sequences
-            SET last_number = ?
-            WHERE year = ?
-        ");
+        $updateSeq = $pdo->prepare("UPDATE customer_sequences SET last_number = ? WHERE year = ?");
         $updateSeq->execute([$next, $year]);
     } else {
         $next = 1;
-
-        $insertSeq = $pdo->prepare("
-            INSERT INTO customer_sequences (year, last_number)
-            VALUES (?, ?)
-        ");
+        $insertSeq = $pdo->prepare("INSERT INTO customer_sequences (year, last_number) VALUES (?, ?)");
         $insertSeq->execute([$year, $next]);
     }
 
     $customerCode = sprintf("CUS-%s-%04d", $year, $next);
 
     /* =========================
-       INSERT CUSTOMER
+       4. INSERT ข้อมูลลูกค้า
     ========================= */
     $stmt = $pdo->prepare("
         INSERT INTO customer
@@ -72,7 +67,7 @@ try {
     ");
 
     $stmt->execute([
-        $customerCode,
+        $customerCode, // ใช้ Code ที่ Gen มาใหม่
         $data['first_name'],
         $data['last_name'],
         $data['gender'] ?? 'Unspecified',
@@ -81,22 +76,25 @@ try {
         $data['status_id']
     ]);
 
+    // 🔥 5. พระเอกของเรา: ดึง ID ล่าสุดออกมาส่งกลับไปให้ JS
     $newCustomerId = $pdo->lastInsertId();
 
     $pdo->commit();
 
+    // ส่ง Response กลับไป (ต้องมี customer_id ไม่งั้นอัปรูปไม่ได้)
     echo json_encode([
         "status" => "success",
         "message" => "Customer added successfully",
         "customer_code" => $customerCode,
-        "customer_id" => $newCustomerId // 🔥 ส่ง ID กลับไปให้ JS ใช้
+        "customer_id" => $newCustomerId // ✅ สำคัญมาก!
     ]);
     exit;
 
 } catch (Exception $e) {
-
-    $pdo->rollBack();
-
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
+    
     echo json_encode([
         "status" => "error",
         "message" => "Failed to add customer",

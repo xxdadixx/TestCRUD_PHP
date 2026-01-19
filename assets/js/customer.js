@@ -199,6 +199,7 @@ function openAddCustomer() {
                 status_id: document.getElementById("status_id").value,
             };
 
+            // ✅ 1. ใส่ Validation กลับมาแล้วครับ
             data.first_name = data.first_name.replace(/\s+/g, " ").trim();
             data.last_name = data.last_name.replace(/\s+/g, " ").trim();
 
@@ -210,11 +211,11 @@ function openAddCustomer() {
             if (!nationalIdRegex.test(cleanNationalId)) { Swal.showValidationMessage("National ID must be 13 digits"); return false; }
             data.national_id = cleanNationalId;
 
-            // ✅ Return data พร้อมกับ File Object (ถ้ามี)
+            // ✅ 2. Return data พร้อมกับ File Object
             const fileInput = document.getElementById('photo_input_add');
             return {
                 textData: data,
-                photoFile: fileInput.files.length > 0 ? fileInput.files[0] : null
+                photoFile: fileInput && fileInput.files.length > 0 ? fileInput.files[0] : null
             };
         },
         didOpen: () => {
@@ -225,7 +226,7 @@ function openAddCustomer() {
             const { textData, photoFile } = result.value;
 
             try {
-                // 1. สร้างลูกค้าก่อน (Create Text Data)
+                // 1. สร้างลูกค้า (ส่ง Text)
                 const createRes = await fetch(API.customer.store, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -234,19 +235,14 @@ function openAddCustomer() {
                 const createResult = await createRes.json();
 
                 if (createResult.status !== "success") {
-                    // 🔥 แก้ตรงนี้: ให้โชว์ Debug Message ถ้ามี
-                    let errorMsg = createResult.message;
-                    if (createResult.debug) {
-                        errorMsg += "\n(" + createResult.debug + ")";
-                    }
-                    throw new Error(errorMsg);
+                    throw new Error(createResult.message + (createResult.debug ? ` (${createResult.debug})` : ""));
                 }
 
-                // 2. ถ้ามีรูป -> อัปโหลดรูปตามไป (Upload Photo)
+                // 2. ถ้ามีรูป -> อัปโหลดรูปตามไป
                 if (photoFile && createResult.customer_id) {
                     const formData = new FormData();
                     formData.append('photo', photoFile);
-                    formData.append('customer_id', createResult.customer_id); // ใช้ ID ที่เพิ่งได้มา
+                    formData.append('customer_id', createResult.customer_id);
 
                     const uploadRes = await fetch(`${window.APP_BASE_URL}/customers/api/upload_photo.php`, {
                         method: 'POST',
@@ -255,14 +251,13 @@ function openAddCustomer() {
                     const uploadResult = await uploadRes.json();
 
                     if (uploadResult.status !== 'success') {
-                        // ถ้าอัปรูปไม่ผ่าน ให้เตือนแต่ไม่ถือว่าล้มเหลวทั้งหมด (เพราะสร้าง user ได้แล้ว)
                         Swal.fire("Warning", "Customer created but photo upload failed: " + uploadResult.message, "warning");
                         loadCustomers(currentPage);
                         return;
                     }
                 }
 
-                // 3. สำเร็จทุกขั้นตอน
+                // สำเร็จ
                 await Swal.fire({
                     title: "Success",
                     text: "Customer created successfully!",
@@ -272,7 +267,7 @@ function openAddCustomer() {
                 loadCustomers(currentPage);
 
             } catch (err) {
-                console.error(err); // ดูใน Console F12 ได้ด้วย
+                console.error(err);
                 Swal.fire({
                     title: "Error",
                     text: err.message || "Something went wrong",
@@ -385,9 +380,7 @@ function openEditCustomer(customerId) {
                     </div>`,
                 showCancelButton: true, confirmButtonText: "Save Changes", cancelButtonText: "Cancel", focusConfirm: false,
 
-                // 🔥 Logic การบันทึก: อัปโหลดรูปก่อน -> ถ้าผ่านค่อยส่ง Text
                 preConfirm: async () => {
-                    // 1. เก็บค่า Text
                     const data = {
                         customer_id: c.customer_id,
                         first_name: document.getElementById("first_name").value.trim(),
@@ -398,10 +391,13 @@ function openEditCustomer(customerId) {
                         status_id: document.getElementById("status_id").value,
                     };
 
-                    // Validation เบื้องต้น
-                    if (!data.first_name || !data.last_name) { Swal.showValidationMessage("Name is required"); return false; }
+                    // ✅ Validation เต็มรูปแบบ
+                    if (!nameRegex.test(data.first_name)) { Swal.showValidationMessage("First name must be 2–50 characters"); return false; }
+                    if (!nameRegex.test(data.last_name)) { Swal.showValidationMessage("Last name must be 2–50 characters"); return false; }
+                    if (!data.date_of_birth) { Swal.showValidationMessage("Date of birth is required"); return false; }
+                    if (!nationalIdRegex.test(data.national_id)) { Swal.showValidationMessage("National ID must be 13 digits"); return false; }
 
-                    // 2. จัดการรูปภาพ (ถ้ามีการเลือกไฟล์ใหม่)
+                    // จัดการรูปภาพ (ถ้ามีการเลือกไฟล์ใหม่)
                     const fileInput = document.getElementById('photo_input');
                     if (fileInput.files.length > 0) {
                         const formData = new FormData();
@@ -426,7 +422,7 @@ function openEditCustomer(customerId) {
                         }
                     }
 
-                    return data; // ส่งข้อมูล Text ไปให้ .then ข้างล่างจัดการต่อ
+                    return data; 
                 },
                 didOpen: () => lucide.createIcons()
             }).then((result) => {
