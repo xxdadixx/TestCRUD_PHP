@@ -2,7 +2,7 @@
 $scriptName = $_SERVER['SCRIPT_NAME'];
 $baseDir = dirname($scriptName);
 
-// ถ้าอยู่ใน /customers ให้ตัดออก
+// ถ้าอยู่ใน /customers ให้ตัดออกเพื่อหา Root Path ที่แท้จริง
 if (str_ends_with($baseDir, '/customers')) {
     $baseDir = str_replace('/customers', '', $baseDir);
 }
