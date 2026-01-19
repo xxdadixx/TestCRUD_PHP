@@ -138,7 +138,7 @@ function openAddCustomer() {
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="${labelClass}">First Name</label>
                         <input id="first_name" class="${inputClass}" 
@@ -151,7 +151,7 @@ function openAddCustomer() {
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="${labelClass}">Gender</label>
                         <select id="gender" class="${inputClass} appearance-none">
@@ -167,7 +167,7 @@ function openAddCustomer() {
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="${labelClass}">National ID</label>
                         <input id="national_id" class="${inputClass} font-mono tracking-wide" 
@@ -343,7 +343,7 @@ function openEditCustomer(customerId) {
                             <input class="${inputClass} ${disabledClass} font-mono text-sm" value="${c.customer_code}" disabled>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="${labelClass}">First Name</label>
                                 <input id="first_name" class="${inputClass}" value="${c.first_name}" oninput="allowNameOnly(this)">
@@ -354,7 +354,7 @@ function openEditCustomer(customerId) {
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="${labelClass}">Gender</label>
                                 <select id="gender" class="${inputClass} appearance-none">
@@ -369,7 +369,7 @@ function openEditCustomer(customerId) {
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="${labelClass}">National ID</label>
                                 <input id="national_id" class="${inputClass} font-mono" value="${formatNationalIdValue(c.national_id)}" maxlength="17" oninput="formatNationalId(this)">
@@ -496,7 +496,7 @@ function openViewCustomer(customerId) {
                             <input class="${inputClass} ${disabledClass} font-mono text-sm" value="${c.customer_code}" disabled readonly>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="${labelClass}">First Name</label>
                                 <input class="${inputClass} ${disabledClass}" value="${c.first_name}" disabled readonly>
@@ -507,7 +507,7 @@ function openViewCustomer(customerId) {
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="${labelClass}">Gender</label>
                                 <input class="${inputClass} ${disabledClass}" value="${c.gender}" disabled readonly>
@@ -518,7 +518,7 @@ function openViewCustomer(customerId) {
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="${labelClass}">National ID</label>
                                 <input class="${inputClass} ${disabledClass} font-mono" value="${formatNationalIdValue(c.national_id)}" disabled readonly>

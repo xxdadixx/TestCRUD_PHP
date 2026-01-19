@@ -22,37 +22,40 @@ if (!$customer) {
 <h1 class="text-2xl font-bold mb-6">Edit Customer</h1>
 
 <form id="editForm" class="bg-white p-6 rounded shadow space-y-4">
-
     <input type="hidden" id="customer_id" value="<?= $customer['customer_id'] ?>">
 
-    <div>
-        <label>Customer Code</label>
-        <input class="w-full border p-2 rounded"
-               value="<?= htmlspecialchars($customer['customer_code']) ?>" disabled>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Customer Code</label>
+            <input id="customer_code" class="border p-2 rounded w-full"
+                value="<?= htmlspecialchars($customer['customer_code']) ?>" disabled>
+        </div>
     </div>
 
-    <div class="grid grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <input id="first_name" class="border p-2 rounded"
-               value="<?= htmlspecialchars($customer['first_name']) ?>" placeholder="First Name">
+            value="<?= htmlspecialchars($customer['first_name']) ?>" placeholder="First Name">
         <input id="last_name" class="border p-2 rounded"
-               value="<?= htmlspecialchars($customer['last_name']) ?>" placeholder="Last Name">
+            value="<?= htmlspecialchars($customer['last_name']) ?>" placeholder="Last Name">
     </div>
 
-    <select id="gender" class="w-full border p-2 rounded">
-        <?php foreach (['Male', 'Female', 'Unspecified'] as $g): ?>
-            <option value="<?= $g ?>" <?= $customer['gender'] === $g ? 'selected' : '' ?>>
-                <?= $g ?>
-            </option>
-        <?php endforeach; ?>
-    </select>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <select id="gender" class="w-full border p-2 rounded">
+            <?php foreach (['Male', 'Female', 'Unspecified'] as $g): ?>
+                <option value="<?= $g ?>" <?= $customer['gender'] === $g ? 'selected' : '' ?>>
+                    <?= $g ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
 
     <input id="date_of_birth" type="date"
-           max="<?= date('Y-m-d') ?>"
-           value="<?= $customer['date_of_birth'] ?>"
-           class="w-full border p-2 rounded">
+        max="<?= date('Y-m-d') ?>"
+        value="<?= $customer['date_of_birth'] ?>"
+        class="w-full border p-2 rounded">
 
     <input id="national_id" class="w-full border p-2 rounded"
-           value="<?= $customer['national_id'] ?>" placeholder="National ID">
+        value="<?= $customer['national_id'] ?>" placeholder="National ID">
 
     <select id="status_id" class="w-full border p-2 rounded">
         <?php
