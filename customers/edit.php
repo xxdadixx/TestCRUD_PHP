@@ -99,21 +99,26 @@ if (!$customer) {
             last_name: document.getElementById("last_name").value.trim(),
             gender: document.getElementById("gender").value,
             date_of_birth: document.getElementById("date_of_birth").value,
-            national_id: document.getElementById("national_id").value.replace(/-/g, ""),
+            national_id: document.getElementById("national_id").value.replace(/-/g, ""), // ตัดขีดออก
             status_id: document.getElementById("status_id").value,
         };
 
+        // Validation ง่ายๆ
         if (!data.first_name || !data.last_name) {
             Swal.fire("Error", "Name is required", "error");
             return;
         }
 
         try {
-            const res = await fetch(API.customer.update, {
+            // ส่งข้อมูลไปอัปเดต
+            const res = await fetch(API.customer.update, { // ใช้ API จาก api.js
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json"
+                },
                 body: JSON.stringify(data)
             });
+
             const result = await res.json();
 
             if (result.status === 'success') {
@@ -124,12 +129,13 @@ if (!$customer) {
                     timer: 1500,
                     showConfirmButton: false
                 }).then(() => {
-                    window.location.href = "index.php"; // เด้งกลับหน้าแรก
+                    window.location.href = "index.php"; // บันทึกเสร็จเด้งกลับหน้าแรก
                 });
             } else {
                 Swal.fire("Error", result.message, "error");
             }
         } catch (err) {
+            console.error(err);
             Swal.fire("Error", "Cannot connect to server", "error");
         }
     }
