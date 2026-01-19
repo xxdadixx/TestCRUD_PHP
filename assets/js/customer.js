@@ -310,8 +310,7 @@ function openEditCustomer(customerId) {
             }
             const c = res.data;
 
-            // ตรวจสอบรูปภาพ: ถ้ามีรูปให้ใช้ path จริง, ถ้าไม่มีใช้ Default User Icon
-            // หมายเหตุ: APP_BASE_URL มาจาก header.php ที่เราประกาศไว้
+            // เตรียม URL รูป
             const photoUrl = c.photo
                 ? `${window.APP_BASE_URL}/photos/${c.photo}?t=${new Date().getTime()}`
                 : "https://cdn-icons-png.flaticon.com/512/847/847969.png";
