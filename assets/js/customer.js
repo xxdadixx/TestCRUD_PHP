@@ -106,6 +106,8 @@ function renderPagination(page, totalPages) {
 /* =========================
    ADD CUSTOMER (WITH PHOTO)
 ========================= */
+/* assets/js/customer.js */
+
 function openAddCustomer() {
     Swal.fire({
         title: "New Customer",
@@ -293,6 +295,8 @@ function previewImageAdd(input) {
 /* =========================
    EDIT CUSTOMER (WITH PHOTO UPLOAD)
 ========================= */
+/* assets/js/customer.js */
+
 function openEditCustomer(customerId) {
     fetch(API.customer.show + "?id=" + customerId)
         .then(async (res) => {
