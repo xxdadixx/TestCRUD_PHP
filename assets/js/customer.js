@@ -685,6 +685,7 @@ loadCustomers(currentPage);
    FETCH DATA (SOFT LOADING - NO FLICKER)
 ========================= */
 async function loadCustomers(page = 1) {
+    if (!tableBody) return;
     currentPage = page;
     updateHeaderUI();
 
