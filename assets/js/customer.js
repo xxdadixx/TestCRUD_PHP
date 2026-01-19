@@ -405,13 +405,10 @@ function openEditCustomer(customerId) {
                         formData.append('customer_id', c.customer_id);
 
                         try {
-                            // ส่งไปที่ upload_photo.php (Hardcode path หรือใส่ใน api.js ก็ได้)
                             const uploadRes = await fetch(`${window.APP_BASE_URL}/customers/api/upload_photo.php`, {
-                                method: 'POST',
-                                body: formData
+                                method: 'POST', body: formData
                             });
                             const uploadResult = await uploadRes.json();
-
                             if (uploadResult.status !== 'success') {
                                 Swal.showValidationMessage("Photo Upload Failed: " + uploadResult.message);
                                 return false;
