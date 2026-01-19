@@ -654,13 +654,28 @@ function allowNameOnly(input) {
 /* =========================
    INIT
 ========================= */
-searchInput.addEventListener('input', (e) => {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => {
-        currentSearch = e.target.value.trim();
-        loadCustomers(1);
-    }, 400);
+// ✅ ป้องกัน Error: เช็คว่ามี searchInput ไหม
+if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            currentSearch = e.target.value.trim();
+            loadCustomers(1);
+        }, 400);
+    });
+}
+
+// ✅ ป้องกัน Error: เช็คว่ามี sortable ไหม
+document.querySelectorAll('.sortable').forEach(th => {
+    th.addEventListener('click', () => {
+        changeSort(th.dataset.column);
+    });
 });
+
+// ✅ สำคัญที่สุด: ถ้าไม่มีตาราง (เช่นอยู่หน้า Edit) ห้ามเรียกโหลดข้อมูล
+if (tableBody) {
+    loadCustomers(currentPage);
+}
 
 /* =========================
    BIND EVENTS & LOAD
@@ -671,11 +686,12 @@ document.querySelectorAll('.sortable').forEach(th => {
     });
 });
 
+// ✅ แก้ไข: เช็คก่อนว่ามีตารางไหม ถ้าไม่มี (เช่นอยู่หน้า Edit) ก็ไม่ต้องโหลด
+if (document.getElementById("tableBody")) {
+    loadCustomers(currentPage);
+}
+
 loadCustomers(currentPage);
-/* =========================
-   FETCH DATA
-========================= */
-/* assets/js/customer.js */
 
 /* =========================
    FETCH DATA (SOFT LOADING - NO FLICKER)
