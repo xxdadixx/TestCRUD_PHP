@@ -18,6 +18,7 @@ $columnIndexMap = [
 ?>
 
 <link rel="stylesheet" href="<?= $BASE_URL ?>/assets/css/table.css">
+<link rel="stylesheet" href="<?= $BASE_URL ?>/assets/css/table.css?v=<?= time() ?>">
 
 <div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
     <div>
