@@ -1,7 +1,21 @@
 <?php
-require "../config/database.php";
-require "../layout/header.php";
-require "../customers/api/formate.php";
+// 1. เปิดแสดง Error แบบเต็มสูบ
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// 2. เรียกไฟล์แบบ Path ชัดเจน (ใช้ __DIR__ ป้องกัน Path เพี้ยน)
+require_once __DIR__ . "/../config/database.php"; 
+require_once __DIR__ . "/../layout/header.php"; 
+
+// ลองเช็คไฟล์นี้ว่ามีอยู่จริงไหมก่อนเรียก
+$formatePath = __DIR__ . "/api/formate.php";
+if (file_exists($formatePath)) {
+    require_once $formatePath;
+} else {
+    echo "หาไฟล์ formate.php ไม่เจอที่: " . $formatePath;
+    exit;
+}
 ?>
 
 <div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
