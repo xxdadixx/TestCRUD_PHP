@@ -37,31 +37,21 @@ let debounceTimer = null;
 // --- Main Function ---
 async function loadCustomers(page = 1) {
     const tableBody = document.getElementById("tableBody");
-    if (!tableBody) return;
-
-    state.currentPage = page;
-    TableUI.updateHeaderUI(state); // อัปเดตลูกศรหัวตาราง
-
-    // เช็คว่ามีข้อมูลเดิมไหม
-    const hasData = tableBody.children.length > 0 && !tableBody.querySelector('td[colspan]');
-    
-    // ✅ START LOADING: ใส่ Class ทันที
-    if (hasData) {
-        tableBody.classList.add('table-loading');
-    } else {
-        // ถ้าไม่มีข้อมูลเดิม (เช่นเพิ่งเข้าเว็บ) ให้หมุน Spinner
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="100%" class="h-64 text-center align-middle">
-                    <div class="flex flex-col items-center justify-center text-gray-400 gap-3">
-                        <i data-lucide="loader-2" class="w-8 h-8 animate-spin text-blue-500"></i>
-                        <span class="text-sm font-medium">Loading data...</span>
-                    </div>
-                </td>
-            </tr>
-        `;
-        lucide.createIcons();
+    // หาตัว Overlay (ถ้าไม่มี ให้สร้างใหม่สดๆ)
+    let overlay = document.querySelector('.table-loading-overlay');
+    if (!overlay) {
+        const container = document.querySelector('.table-container');
+        if (container) {
+            overlay = document.createElement('div');
+            overlay.className = 'table-loading-overlay';
+            overlay.innerHTML = `<div class="flex flex-col items-center"><i data-lucide="loader-2" class="w-8 h-8 animate-spin text-blue-500"></i><span class="text-xs text-gray-500 mt-2 font-medium">Updating...</span></div>`;
+            container.appendChild(overlay);
+            lucide.createIcons();
+        }
     }
+
+    // ✅ 1. Show Loading (Fade In)
+    if (overlay) overlay.classList.add('active');
 
     const params = new URLSearchParams({
         page: state.currentPage,
@@ -72,16 +62,21 @@ async function loadCustomers(page = 1) {
     });
 
     try {
-        // หน่วงเวลาเทียมเล็กน้อย (Optional) เพื่อให้ตาเห็น Effect ถ้าเน็ตเร็วมาก
-        // await new Promise(r => setTimeout(r, 200)); 
+        // หน่วงเวลานิดนึง (300ms) ให้ตาเห็น Effect ว่ามีการโหลด
+        const startTime = Date.now();
+        const minLoadTime = 300; 
 
         const data = await CustomerService.getAll(params.toString());
         
+        // รอให้ครบเวลา (ถ้าโหลดเร็วกว่ากำหนด)
+        const elapsed = Date.now() - startTime;
+        if (elapsed < minLoadTime) await new Promise(r => setTimeout(r, minLoadTime - elapsed));
+
         if (data.status === 'error') throw new Error(data.message);
 
-        // Render ตารางใหม่
         TableUI.renderTable(data.customers, state, {});
         TableUI.renderPagination(data.page, data.totalPages, loadCustomers);
+        TableUI.updateHeaderUI(state); // 🔥 อย่าลืมเรียกอันนี้เพื่ออัปเดตไอคอนหัวตาราง
 
     } catch (err) {
         console.error(err);
@@ -97,11 +92,10 @@ async function loadCustomers(page = 1) {
         `;
         lucide.createIcons();
     } finally {
-        // ✅ STOP LOADING: เอา Class ออก
-        // ใช้ setTimeout เล็กน้อยเพื่อให้ CSS Transition ทำงานทัน
-        requestAnimationFrame(() => {
-            tableBody.classList.remove('table-loading');
-        });
+        // ✅ 2. Hide Loading (Fade Out)
+        if (overlay) {
+            setTimeout(() => overlay.classList.remove('active'), 100);
+        }
     }
 }
 

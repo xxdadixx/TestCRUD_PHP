@@ -239,25 +239,43 @@ export function initResizableTable() {
 /* =========================
    UI HELPERS
 ========================= */
-export function updateHeaderUI(sortState) {
-    const { currentSort, currentOrder } = sortState;
-    const activeClasses = ['bg-gray-100', 'dark:bg-white/10'];
+export function updateHeaderUI(state) {
+    const headers = document.querySelectorAll('.sortable');
+    headers.forEach(th => {
+        // 1. ล้างสถานะเก่า
+        delete th.dataset.order;
+        th.classList.remove('text-blue-600', 'dark:text-blue-400', 'bg-gray-50', 'dark:bg-white/5');
+        
+        // 2. หา element ที่เก็บไอคอน (ถ้าไม่มีให้สร้างใหม่)
+        let iconContainer = th.querySelector('.sort-icon');
+        if (!iconContainer) {
+            // สร้าง div รอไว้สำหรับใส่ไอคอน
+            const div = th.querySelector('div'); // หา div ที่คลุม text อยู่
+            if (div) {
+                iconContainer = document.createElement('span');
+                iconContainer.className = 'sort-icon ml-1';
+                div.appendChild(iconContainer);
+            }
+        }
 
-    document.querySelectorAll('.sortable').forEach(th => {
-        const icon = th.querySelector('.sort-icon');
+        // 3. เช็คสถานะการ Sort ปัจจุบัน
         const column = th.dataset.column;
+        if (state.currentSort === column) {
+            th.dataset.order = state.currentOrder;
+            th.classList.add('text-blue-600', 'dark:text-blue-400', 'bg-gray-50', 'dark:bg-white/5'); // Highlight หัวตาราง
 
-        // 🔥 เพิ่มการเช็ค: ถ้าหา icon ไม่เจอ ให้ข้ามไปเลย (เว็บจะได้ไม่พัง)
-        if (!icon) return;
-
-        // Reset
-        icon.textContent = '';
-        th.classList.remove(...activeClasses);
-
-        // Set Active
-        if (column === currentSort) {
-            icon.textContent = currentOrder === 'ASC' ? ' ▲' : ' ▼';
-            th.classList.add(...activeClasses);
+            // 🔥 ใส่ Icon ของจริง (Lucide)
+            if (state.currentOrder === 'ASC') {
+                iconContainer.innerHTML = `<i data-lucide="arrow-up" class="w-3.5 h-3.5 stroke-[2.5]"></i>`;
+            } else {
+                iconContainer.innerHTML = `<i data-lucide="arrow-down" class="w-3.5 h-3.5 stroke-[2.5]"></i>`;
+            }
+        } else {
+            // ถ้าไม่ได้ Sort: แสดงไอคอนจางๆ หรือซ่อนไปเลยก็ได้ (Apple style มักจะซ่อน หรือโชว์ขีดเล็กๆ)
+            iconContainer.innerHTML = `<i data-lucide="chevrons-up-down" class="w-3.5 h-3.5 text-gray-300 dark:text-gray-600 stroke-[2]"></i>`;
         }
     });
+
+    // 4. สั่ง render icon ใหม่ทันที
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 }

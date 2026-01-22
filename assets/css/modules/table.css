@@ -79,52 +79,50 @@ tbody tr:hover td { background-color: #f9fafb !important; }
 tbody tr:last-child td { border-bottom: none; }
 
 /* =========================
-   3. Features: Sort (แก้ใหม่ ไม่ให้เด้ง)
+   3. Features: Sort (ใช้ Icon จริงแล้ว ลบของเก่าทิ้ง)
 ========================= */
-th.sortable { cursor: pointer; }
-th.sortable:hover { background-color: #f3f4f6 !important; color: #111827; }
-.dark th.sortable:hover { background-color: #3f3f46 !important; color: white; }
+th.sortable { cursor: pointer; transition: all 0.2s; }
 
-/* กล่องไอคอน (Fixed Size) */
+/* จัดระเบียบกล่องไอคอน */
 .sort-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* =========================
+   4. Loading Effect (แบบ Apple Style)
+========================= */
+/* Container ต้อง relative เพื่อให้ overlay เกาะได้ */
+.table-container {
+    position: relative; 
+    min-height: 300px; /* กันตารางหด */
+}
+
+/* สร้างม่านสีขาวจางๆ มาบังตาราง (Backdrop Blur) */
+.table-loading-overlay {
+    position: absolute;
+    inset: 0; /* เต็มพื้นที่ */
+    background: rgba(255, 255, 255, 0.6); /* ขาวโปร่งแสง */
+    backdrop-filter: blur(2px); /* เบลอฉากหลัง */
+    z-index: 50;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 16px; /* 🔥 ล็อคความกว้างขั้นต่ำ */
-    height: 16px;
-    opacity: 0.3;
-    transition: all 0.2s;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
 }
 
-/* ตัวไอคอน (ใช้ CSS สร้าง) */
-.sort-icon::after {
-    content: '↕'; /* Default Icon */
-    font-size: 14px;
-    line-height: 1;
-    font-family: sans-serif;
+.dark .table-loading-overlay {
+    background: rgba(0, 0, 0, 0.6); /* ดำโปร่งแสงสำหรับ Dark Mode */
 }
 
-/* Active State (เปลี่ยน Content แต่ไม่เปลี่ยน Layout) */
-th[data-order="ASC"] .sort-icon { opacity: 1; color: var(--primary-blue); }
-th[data-order="ASC"] .sort-icon::after { content: '↑'; }
-
-th[data-order="DESC"] .sort-icon { opacity: 1; color: var(--primary-blue); }
-th[data-order="DESC"] .sort-icon::after { content: '↓'; }
-
-/* =========================
-   4. Loading Effect (แก้ให้ชัดขึ้น)
-========================= */
-/* Class นี้จะใส่ที่ tbody */
-tbody.table-loading {
-    opacity: 0.4 !important;
-    filter: blur(1.5px) !important; /* เบลอให้เห็นชัดๆ */
-    pointer-events: none; /* ห้ามกดขณะโหลด */
-    transition: all 0.2s ease-in-out;
+/* เมื่อมี Class active ให้โชว์ */
+.table-loading-overlay.active {
+    opacity: 1;
+    pointer-events: all;
 }
-
-/* Resizer */
-.resizer {
-    position: absolute; right: 0; top: 0; bottom: 0; width: 4px;
-    cursor: col-resize; z-index: 30; touch-action: none;
-}
-.resizer:hover, .resizing { background: var(--primary-blue); opacity: 1 !important; }
