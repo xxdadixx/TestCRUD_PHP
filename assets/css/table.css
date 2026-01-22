@@ -429,6 +429,40 @@ button.bg-blue-500:active {
     transform: scale(0.96) !important;
 }
 
+/* Secondary Action Button (Export CSV) */
+button.bg-green-600 {
+    background-color: #34c759 !important; /* Apple Green */
+    border-radius: 980px !important; /* ทรงแคปซูล (Pill) */
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    padding: 8px 18px !important;
+    box-shadow: none !important;
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+    transform: scale(1);
+    color: white !important;
+    display: inline-flex !important;
+    align-items: center;
+    gap: 8px; /* ระยะห่าง icon กับตัวหนังสือ */
+}
+
+/* Hover State */
+button.bg-green-600:hover {
+    background-color: #30d158 !important; /* สว่างขึ้นนิดนึง */
+    transform: scale(1.02) !important;
+    box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3) !important; /* เงาสีเขียวจางๆ */
+}
+
+/* Active (Click) State */
+button.bg-green-600:active {
+    transform: scale(0.96) !important;
+}
+
+/* Dark Mode Adjustment */
+.dark button.bg-green-600 {
+    background-color: #30d158 !important;
+    color: #000 !important; /* ตัวหนังสือสีดำบนพื้นเขียว จะอ่านง่ายกว่าใน Dark Mode */
+}
+
 /* =========================
    Footer - Apple Style
 ========================= */

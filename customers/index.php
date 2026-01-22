@@ -47,9 +47,19 @@ if (file_exists($formatePath)) {
             <a href="index.php" class="text-sm text-gray-500 hover:text-red-500 whitespace-nowrap">✕ Clear</a>
         <?php endif; ?>
 
-        <button onclick="openAddCustomer()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:shadow-blue-500/30 transition-all whitespace-nowrap">
-            + Add Customer
-        </button>
+        <div class="flex items-center gap-3">
+            <button onclick="openAddCustomer()"
+                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:shadow-blue-500/30 transition-all whitespace-nowrap flex items-center gap-2">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                Add Customer
+            </button>
+            <button onclick="exportData()"
+                class="bg-green-600 text-white rounded-full">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                Export CSV
+            </button>
+        </div>
+
     </div>
 </div>
 

@@ -1,8 +1,11 @@
 /* assets/js/customer.js (Clean Version) */
 import * as Utils from './modules/utils.js';
 import { CustomerService } from './modules/api-service.js';
+import { API } from './modules/api-config.js'; 
 import * as TableUI from './modules/table-ui.js';
 import * as Forms from './modules/forms.js';
+
+const { swalTheme } = Utils;
 
 window.formatNationalId = Utils.formatNationalId;
 window.formatNationalIdValue = Utils.formatNationalIdValue;
@@ -91,6 +94,35 @@ async function loadCustomers(page = 1) {
     }
 }
 
+window.exportData = () => {
+    Swal.fire({
+        title: "Export to CSV?",
+        text: "Do you want to download the customer list?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Yes, Export",
+        cancelButtonText: "Cancel",
+        ...swalTheme() // ใช้ Theme เดียวกับทั้งเว็บ
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // ถ้ากด Yes ค่อยทำงาน
+            const params = new URLSearchParams({
+                search: state.currentSearch,
+                sort: state.currentSort,
+                order: state.currentOrder
+            });
+
+            window.location.href = `${API.customer.export}?${params.toString()}`;
+
+            // (Optional) โชว์ Success เล็กๆ ว่าเริ่มโหลดแล้ว
+            const Toast = Swal.mixin({
+                toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, ...swalTheme()
+            });
+            Toast.fire({ icon: 'success', title: 'Download started' });
+        }
+    });
+};
+
 // --- Event Listeners ---
 const searchInput = document.getElementById("searchInput");
 if (searchInput) {
@@ -158,7 +190,17 @@ document.addEventListener('click', (e) => {
 
 // Start
 document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById("tableBody")) {
-        loadCustomers(1);
+    if (document.getElementById("tableBody")) loadCustomers(1);
+    
+    // Event Search
+    const searchInput = document.getElementById("searchInput");
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                state.currentSearch = e.target.value.trim();
+                loadCustomers(1);
+            }, 400);
+        });
     }
 });

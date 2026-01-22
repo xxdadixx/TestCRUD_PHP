@@ -9,6 +9,7 @@ export const API = {
         store: `${BASE}/customers/api/store.php`,
         update: `${BASE}/customers/api/update.php`,
         delete: `${BASE}/customers/api/delete.php`,
-        upload: `${BASE}/customers/api/upload_photo.php`
+        upload: `${BASE}/customers/api/upload_photo.php`,
+        export: `${BASE}/customers/api/export.php`
     }
 };
