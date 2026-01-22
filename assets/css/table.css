@@ -662,7 +662,6 @@ th {
 td {
     overflow: hidden !important;
     text-overflow: ellipsis !important; /* ถ้าข่องแคบไป ให้ขึ้น ... แทน */
-    max-width: 1px; /* บังคับให้ Browser เคารพขนาดช่อง ในโหมด Fixed Layout */
 }
 
 /* ✅ เพิ่มส่วนนี้: กำหนดความกว้างขั้นต่ำของแต่ละช่อง เพื่อไม่ให้โดนบีบจนอ่านไม่ออก */
