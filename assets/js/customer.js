@@ -706,17 +706,23 @@ async function loadCustomers(page = 1) {
     const hasData = tableBody.children.length > 0 && !tableBody.querySelector('td[colspan]');
 
     if (hasData) {
-        // ✅ ถ้ามีข้อมูล: ให้ "จางลง" (Dim) แทนการลบทิ้ง (ตาจะไม่รู้สึกว่ากระพริบ)
+        // ... (โค้ดเดิม: ทำให้จางลง)
         tableBody.classList.add('opacity-40', 'pointer-events-none', 'transition-opacity', 'duration-200');
     } else {
-        // ⚪ ถ้าเปิดมาครั้งแรก (ตารางโล่ง): ให้ขึ้น Loading ตามปกติ
+        // 🔥 แก้ตรงนี้: ใส่ Loader สวยๆ กลางตาราง
         tableBody.innerHTML = `
-            <tr>
-                <td colspan="11" class="p-6 text-center text-gray-400 animate-pulse">
-                    Loading...
+            <tr class="border-b border-gray-100 dark:border-gray-800">
+                <td colspan="11" class="h-96 text-center align-middle">
+                    <div class="flex flex-col items-center justify-center gap-3">
+                        <div class="p-3 bg-gray-50 dark:bg-gray-800 rounded-full shadow-sm">
+                            <i data-lucide="loader-2" class="w-8 h-8 text-blue-500 animate-spin"></i>
+                        </div>
+                        <span class="text-sm text-gray-400 font-medium animate-pulse">Loading Data...</span>
+                    </div>
                 </td>
             </tr>
         `;
+        lucide.createIcons(); // สร้างไอคอนทันที
     }
 
     const params = new URLSearchParams({
