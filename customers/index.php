@@ -56,8 +56,8 @@ if (file_exists($formatePath)) {
 <div class="w-full mt-4 pb-24">
     <div class="aurora-container">
         <div class="aurora-orb"></div>
-        <div class="rounded-xl shadow bg-white dark:bg-gray-800 overflow-x-auto custom-scrollbar">
-            <table class="min-w-full">
+        <div class="overflow-x-auto rounded-xl shadow bg-white dark:bg-gray-800 overflow-x-auto custom-scrollbar">
+            <table id="customerTable" class="w-full text-left border-collapse">
                 <thead class="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
                     <tr class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">
                         <th class="p-3 text-center w-16 text-gray-500 font-semibold">

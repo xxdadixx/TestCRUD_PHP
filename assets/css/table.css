@@ -23,10 +23,16 @@ th.sortable:has(.resizer:hover) {
 
 th.sortable,
 .sortable {
-    cursor: pointer !important;
+    position: relative;
+    cursor: pointer;
     user-select: none;
-    /* Prevents text selection when clicking rapidly */
     transition: background-color 0.15s ease-in-out;
+}
+
+th.sortable:has(.resizer:hover),
+.resizer:hover,
+.resizing {
+    cursor: col-resize !important; /* ✅ ใส่ !important ตรงนี้แทน */
 }
 
 th.sortable *,
@@ -542,21 +548,6 @@ th {
     /* สำคัญ! เพื่อให้ Resizer เกาะติดอยู่ขวาของช่องตัวเอง */
 }
 
-.resizer {
-    position: absolute;
-    right: 0;
-    top: 0;
-    height: 100%;
-    width: 5px;
-    /* ลดความกว้างลงนิดนึง เพื่อไม่ให้กินพื้นที่ Sort มากไป */
-    background: transparent;
-    cursor: col-resize;
-    user-select: none;
-    touch-action: none;
-    z-index: 10;
-    /* ดันให้ลอยเหนือ th */
-}
-
 /* เพิ่มส่วนนี้: เมื่อเอาเมาส์ไปโดนเส้นขอบ ให้แสดงสีฟ้าชัดๆ และบังคับ Cursor */
 .resizer:hover,
 .resizing {
@@ -652,15 +643,47 @@ table {
     border-spacing: 0;
 }
 
-/* ข้อความ: บรรทัดเดียว ห้ามตัด (โชว์เต็ม) */
+/* ข้อความ: บรรทัดเดียว ห้ามตัด */
 th,
 td {
     white-space: nowrap !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
     vertical-align: middle !important;
     padding: 12px 16px !important;
     box-sizing: border-box;
+}
+
+/* ✅ ส่วนหัวตาราง (th): ต้อง Visible เพื่อให้ Resizer (เส้นลาก) ไม่โดนตัด */
+th {
+    overflow: visible !important; 
+    text-overflow: clip !important;
+}
+
+/* ✅ ส่วนเนื้อหา (td): ต้อง Hidden เพื่อไม่ให้ไหลไปทับช่องข้างๆ */
+td {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important; /* ถ้าข่องแคบไป ให้ขึ้น ... แทน */
+    max-width: 1px; /* บังคับให้ Browser เคารพขนาดช่อง ในโหมด Fixed Layout */
+}
+
+/* ✅ เพิ่มส่วนนี้: กำหนดความกว้างขั้นต่ำของแต่ละช่อง เพื่อไม่ให้โดนบีบจนอ่านไม่ออก */
+th, td {
+    min-width: 120px; /* อย่างน้อยต้องกว้าง 120px */
+}
+
+/* ช่องบางช่องที่ข้อมูลน้อย ยอมให้เล็กลงได้ */
+th[data-column="customer_id"], 
+td:nth-child(2), /* ช่อง ID */
+th:first-child, 
+td:first-child { /* ช่อง No. */
+    min-width: 60px;
+    width: 60px;
+}
+
+/* ช่องบางช่องที่ข้อมูลเยอะ ให้กว้างหน่อย */
+th[data-column="first_name"], 
+th[data-column="last_name"],
+th[data-column="email"] {
+    min-width: 150px;
 }
 
 /* --- Resizer (ตัวลากปรับขนาด) --- */
@@ -694,4 +717,24 @@ th .resizer:hover,
 .resizing {
     background-color: #3b82f6;
     width: 4px;
+}
+
+.resizer {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 10px; /* เพิ่มพื้นที่จับนิดนึงก็ได้ครับ (เช่น 10px) จะได้จับง่ายขึ้น */
+    background: transparent;
+    cursor: col-resize;
+    user-select: none;
+    touch-action: none;
+    z-index: 20; /* ให้ค่าสูงกว่า th */
+}
+
+/* เมื่อเอาเมาส์ไปชี้ */
+.resizer:hover,
+.resizing {
+    background: #3b82f6;
+    cursor: col-resize !important; /* 🔥 ต้องมี !important */
 }

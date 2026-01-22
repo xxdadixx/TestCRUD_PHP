@@ -164,7 +164,11 @@ export function initResizableTable() {
         if (!resizer) {
             resizer = document.createElement('div');
             resizer.className = 'resizer';
-            resizer.addEventListener('click', (e) => e.stopPropagation());
+            // ✅ ป้องกันการคลิกที่ตัว Resizer เอง
+            resizer.addEventListener('click', (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+            });
             col.appendChild(resizer);
         }
 
@@ -175,19 +179,15 @@ export function initResizableTable() {
 
         const mouseDownHandler = (e) => {
             e.preventDefault();
-            e.stopPropagation();
+            e.stopPropagation(); // หยุดไม่ให้ทะลุไปหา th
 
-            // 1. Freeze: เปลี่ยน Auto -> Fixed ทันทีที่เริ่มจับ
+            // ✅ 1. เริ่ม Lock: บอกว่ากำลังลากอยู่
+            document.body.classList.add('is-resizing');
+
             if (table.style.tableLayout !== 'fixed') {
                 const currentWidths = [];
                 table.querySelectorAll('th').forEach(c => currentWidths.push(c.getBoundingClientRect().width));
-
-                // ล็อคความกว้างทุกช่อง
-                table.querySelectorAll('th').forEach((c, i) => {
-                    c.style.width = `${currentWidths[i]}px`;
-                });
-
-                // ล็อคความกว้างตาราง
+                table.querySelectorAll('th').forEach((c, i) => c.style.width = `${currentWidths[i]}px`);
                 table.style.width = `${table.getBoundingClientRect().width}px`;
                 table.style.tableLayout = 'fixed';
             }
@@ -205,17 +205,19 @@ export function initResizableTable() {
         };
 
         const mouseMoveHandler = (e) => {
-            isDragging = true;
-            requestAnimationFrame(() => {
-                const dx = e.clientX - startX;
-                // คำนวณความกว้างใหม่
-                const newColW = Math.max(50, startColW + dx);
-                const realDiff = newColW - startColW;
-
-                // ขยายช่อง + ขยายตารางไปพร้อมกัน
-                col.style.width = `${newColW}px`;
-                table.style.width = `${startTableW + realDiff}px`;
-            });
+            // ถ้าขยับเมาส์เกินนิดหน่อย ถือว่าลากจริง
+            if (!isDragging && Math.abs(e.clientX - startX) > 5) {
+                isDragging = true;
+            }
+            if (isDragging) {
+                requestAnimationFrame(() => {
+                    const dx = e.clientX - startX;
+                    const newColW = Math.max(50, startColW + dx);
+                    const realDiff = newColW - startColW;
+                    col.style.width = `${newColW}px`;
+                    table.style.width = `${startTableW + realDiff}px`;
+                });
+            }
         };
 
         const mouseUpHandler = () => {
@@ -224,15 +226,10 @@ export function initResizableTable() {
             resizer.classList.remove('resizing');
             document.body.style.cursor = '';
 
-            if (isDragging) {
-                const killClick = (ev) => {
-                    ev.stopPropagation();
-                    ev.preventDefault();
-                    window.removeEventListener('click', killClick, true);
-                };
-                window.addEventListener('click', killClick, true);
-                setTimeout(() => window.removeEventListener('click', killClick, true), 100);
-            }
+            // ✅ 2. ปลด Lock: (หน่วงเวลา 100ms เพื่อรอให้ Event click ผ่านไปก่อน)
+            setTimeout(() => {
+                document.body.classList.remove('is-resizing');
+            }, 100);
         };
 
         resizer.addEventListener('mousedown', mouseDownHandler);

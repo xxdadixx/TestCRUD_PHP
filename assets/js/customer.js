@@ -144,6 +144,12 @@ function changeSort(column) {
 
 // ผูก Event Click ให้กับทุกปุ่ม Sort
 document.addEventListener('click', (e) => {
+    // ✅ 1. เช็คว่ากำลังลากขยายช่องอยู่หรือเปล่า? (ถ้าใช่ ให้หยุดทันที)
+    if (document.body.classList.contains('is-resizing')) return;
+
+    // ✅ 2. เช็คว่ากดโดนเส้น Resizer หรือเปล่า? (ถ้าใช่ ให้หยุดทันที)
+    if (e.target.classList.contains('resizer')) return;
+
     const th = e.target.closest('.sortable');
     if (th) {
         changeSort(th.dataset.column);
