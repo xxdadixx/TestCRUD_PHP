@@ -99,5 +99,6 @@ if (file_exists($formatePath)) {
 <script src="<?= $BASE_URL ?>/assets/js/api.js"></script>
 <script src="<?= $BASE_URL ?>/assets/js/customer.js?v=<?= time() ?>"></script>
 <script>lucide.createIcons();</script>
+<script type="module" src="<?= $BASE_URL ?>/assets/js/customer.js?v=<?= time() ?>"></script>
 
 <?php require "../layout/footer.php"; ?>
