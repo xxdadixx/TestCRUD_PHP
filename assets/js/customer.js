@@ -37,22 +37,24 @@ let debounceTimer = null;
 // --- Main Function ---
 async function loadCustomers(page = 1) {
     const tableBody = document.getElementById("tableBody");
-    if (!tableBody) return; // ถ้าไม่มีตาราง (เช่นหน้า Edit) ให้หยุดทำงาน
+    if (!tableBody) return;
 
     state.currentPage = page;
-    TableUI.updateHeaderUI(state); // อัปเดตลูกศร Sort
+    TableUI.updateHeaderUI(state); // อัปเดตลูกศรหัวตาราง
 
-    // 1. Loading State (แบบไม่กระพริบ)
+    // เช็คว่ามีข้อมูลเดิมไหม
     const hasData = tableBody.children.length > 0 && !tableBody.querySelector('td[colspan]');
+    
+    // ✅ START LOADING: ใส่ Class ทันที
     if (hasData) {
         tableBody.classList.add('table-loading');
     } else {
-        // ถ้าไม่มีข้อมูลเลย ให้ขึ้น Spinner หมุนๆ
+        // ถ้าไม่มีข้อมูลเดิม (เช่นเพิ่งเข้าเว็บ) ให้หมุน Spinner
         tableBody.innerHTML = `
             <tr>
                 <td colspan="100%" class="h-64 text-center align-middle">
-                    <div class="flex flex-col items-center justify-center text-gray-400">
-                        <i data-lucide="loader-2" class="w-8 h-8 animate-spin mb-2 text-blue-500"></i>
+                    <div class="flex flex-col items-center justify-center text-gray-400 gap-3">
+                        <i data-lucide="loader-2" class="w-8 h-8 animate-spin text-blue-500"></i>
                         <span class="text-sm font-medium">Loading data...</span>
                     </div>
                 </td>
@@ -61,7 +63,6 @@ async function loadCustomers(page = 1) {
         lucide.createIcons();
     }
 
-    // 2. Prepare Params
     const params = new URLSearchParams({
         page: state.currentPage,
         search: state.currentSearch,
@@ -71,37 +72,36 @@ async function loadCustomers(page = 1) {
     });
 
     try {
-        // 3. Fetch Data
+        // หน่วงเวลาเทียมเล็กน้อย (Optional) เพื่อให้ตาเห็น Effect ถ้าเน็ตเร็วมาก
+        // await new Promise(r => setTimeout(r, 200)); 
+
         const data = await CustomerService.getAll(params.toString());
+        
+        if (data.status === 'error') throw new Error(data.message);
 
-        if (data.status === 'error') {
-            throw new Error(data.message);
-        }
-
-        // 4. Render UI
+        // Render ตารางใหม่
         TableUI.renderTable(data.customers, state, {});
         TableUI.renderPagination(data.page, data.totalPages, loadCustomers);
 
     } catch (err) {
         console.error(err);
-        // 🔥 โชว์ Error ที่แท้จริง (err.message)
         tableBody.innerHTML = `
             <tr>
-                <td colspan="11" class="p-6 text-center text-red-500 bg-red-50 dark:bg-red-900/10">
+                <td colspan="100%" class="p-8 text-center text-red-500 bg-red-50 dark:bg-red-900/10 rounded-lg">
                     <div class="flex flex-col items-center gap-2">
                         <i data-lucide="alert-circle" class="w-6 h-6"></i>
-                        <span class="font-bold">Error Loading Data</span>
-                        <span class="text-sm font-mono bg-white dark:bg-black px-2 py-1 rounded border border-red-200 dark:border-red-800">
-                            ${err.message}
-                        </span>
+                        <span>Error: ${err.message}</span>
                     </div>
                 </td>
             </tr>
         `;
         lucide.createIcons();
     } finally {
-        // ✅ 2. โหลดเสร็จ: เอาคลาสออก
-        tableBody.classList.remove('table-loading');
+        // ✅ STOP LOADING: เอา Class ออก
+        // ใช้ setTimeout เล็กน้อยเพื่อให้ CSS Transition ทำงานทัน
+        requestAnimationFrame(() => {
+            tableBody.classList.remove('table-loading');
+        });
     }
 }
 
