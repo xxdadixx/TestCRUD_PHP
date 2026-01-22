@@ -5,8 +5,8 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 // 2. เรียกไฟล์แบบ Path ชัดเจน (ใช้ __DIR__ ป้องกัน Path เพี้ยน)
-require_once __DIR__ . "/../config/database.php"; 
-require_once __DIR__ . "/../layout/header.php"; 
+require_once __DIR__ . "/../config/database.php";
+require_once __DIR__ . "/../layout/header.php";
 
 // ลองเช็คไฟล์นี้ว่ามีอยู่จริงไหมก่อนเรียก
 $formatePath = __DIR__ . "/api/formate.php";
@@ -98,7 +98,11 @@ if (file_exists($formatePath)) {
 
 <script src="<?= $BASE_URL ?>/assets/js/api.js"></script>
 <script src="<?= $BASE_URL ?>/assets/js/customer.js?v=<?= time() ?>"></script>
-<script>lucide.createIcons();</script>
+
+<script>
+    lucide.createIcons();
+</script>
+
 <script type="module" src="<?= $BASE_URL ?>/assets/js/customer.js?v=<?= time() ?>"></script>
 
 <?php require "../layout/footer.php"; ?>
