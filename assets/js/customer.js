@@ -1,7 +1,7 @@
 /* assets/js/customer.js (Clean Version) */
 import * as Utils from './modules/utils.js';
 import { CustomerService } from './modules/api-service.js';
-import { API } from './modules/api-config.js'; 
+import { API } from './modules/api-config.js';
 import * as TableUI from './modules/table-ui.js';
 import * as Forms from './modules/forms.js';
 
@@ -34,23 +34,45 @@ let state = {
 };
 let debounceTimer = null;
 
+window.changeSort = (column) => {
+    // 1. ถ้ากำลังลาก (Resize) ห้าม Sort
+    if (document.body.classList.contains('is-resizing')) return;
+
+    if (state.currentSort === column) {
+        if (state.currentOrder === 'ASC') {
+            state.currentOrder = 'DESC';
+        } else {
+            state.currentSort = ''; // Reset
+            state.currentOrder = 'ASC';
+        }
+    } else {
+        state.currentSort = column;
+        state.currentOrder = 'ASC';
+    }
+    loadCustomers(state.currentPage);
+};
+
 // --- Main Function ---
 async function loadCustomers(page = 1) {
     const tableBody = document.getElementById("tableBody");
-    // หาตัว Overlay (ถ้าไม่มี ให้สร้างใหม่สดๆ)
+    if (!tableBody) return;
+
+    state.currentPage = page;
+
+    // 1. เรียก Overlay ขึ้นมา (ถ้ายังไม่มีก็สร้างใหม่)
     let overlay = document.querySelector('.table-loading-overlay');
     if (!overlay) {
         const container = document.querySelector('.table-container');
         if (container) {
             overlay = document.createElement('div');
             overlay.className = 'table-loading-overlay';
-            overlay.innerHTML = `<div class="flex flex-col items-center"><i data-lucide="loader-2" class="w-8 h-8 animate-spin text-blue-500"></i><span class="text-xs text-gray-500 mt-2 font-medium">Updating...</span></div>`;
+            // Spinner แบบเรียบๆ
+            overlay.innerHTML = `<i data-lucide="loader-2" class="w-8 h-8 animate-spin text-blue-500"></i>`;
             container.appendChild(overlay);
             lucide.createIcons();
         }
     }
-
-    // ✅ 1. Show Loading (Fade In)
+    // โชว์ทันที
     if (overlay) overlay.classList.add('active');
 
     const params = new URLSearchParams({
@@ -62,42 +84,48 @@ async function loadCustomers(page = 1) {
     });
 
     try {
-        // หน่วงเวลานิดนึง (300ms) ให้ตาเห็น Effect ว่ามีการโหลด
-        const startTime = Date.now();
-        const minLoadTime = 300; 
-
+        // 2. ยิง API ทันที (ไม่ต้องรอ Delay)
         const data = await CustomerService.getAll(params.toString());
-        
-        // รอให้ครบเวลา (ถ้าโหลดเร็วกว่ากำหนด)
-        const elapsed = Date.now() - startTime;
-        if (elapsed < minLoadTime) await new Promise(r => setTimeout(r, minLoadTime - elapsed));
 
         if (data.status === 'error') throw new Error(data.message);
 
+        // 3. Render ทันทีที่ข้อมูลมา
         TableUI.renderTable(data.customers, state, {});
         TableUI.renderPagination(data.page, data.totalPages, loadCustomers);
-        TableUI.updateHeaderUI(state); // 🔥 อย่าลืมเรียกอันนี้เพื่ออัปเดตไอคอนหัวตาราง
+        TableUI.updateHeaderUI(state);
 
     } catch (err) {
         console.error(err);
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="100%" class="p-8 text-center text-red-500 bg-red-50 dark:bg-red-900/10 rounded-lg">
-                    <div class="flex flex-col items-center gap-2">
-                        <i data-lucide="alert-circle" class="w-6 h-6"></i>
-                        <span>Error: ${err.message}</span>
-                    </div>
-                </td>
-            </tr>
-        `;
-        lucide.createIcons();
+        tableBody.innerHTML = `<tr><td colspan="100%" class="p-6 text-center text-red-500">Error: ${err.message}</td></tr>`;
     } finally {
-        // ✅ 2. Hide Loading (Fade Out)
+        // 4. ซ่อน Overlay ทันที
         if (overlay) {
-            setTimeout(() => overlay.classList.remove('active'), 100);
+            overlay.classList.remove('active');
         }
     }
 }
+
+// ✅ ย้าย Event Binding มาไว้ใน loadCustomers หรือ DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
+    // ... (ส่วนโหลดข้อมูลเดิม) ...
+
+    // 🔥 ผูก Event Click ให้หัวตาราง (แบบ Delegation ที่ปลอดภัยกว่า)
+    const tableHead = document.querySelector('thead');
+    if (tableHead) {
+        tableHead.addEventListener('click', (e) => {
+            // หา th ที่เป็น sortable
+            const th = e.target.closest('.sortable');
+            if (!th) return;
+
+            // ถ้ากดโดน Resizer ให้หยุด (ห้าม Sort)
+            if (e.target.classList.contains('resizer')) return;
+
+            // เรียก Sort
+            const column = th.dataset.column;
+            if (column) window.changeSort(column);
+        });
+    }
+});
 
 window.exportData = () => {
     Swal.fire({
@@ -174,38 +202,7 @@ function changeSort(column) {
         state.currentSort = column;
         state.currentOrder = 'ASC';
     }
-    
+
     // โหลดข้อมูลใหม่
     loadCustomers(1);
 }
-
-// ผูก Event Click ให้กับทุกปุ่ม Sort
-document.addEventListener('click', (e) => {
-    // ✅ 1. เช็คว่ากำลังลากขยายช่องอยู่หรือเปล่า? (ถ้าใช่ ให้หยุดทันที)
-    if (document.body.classList.contains('is-resizing')) return;
-
-    // ✅ 2. เช็คว่ากดโดนเส้น Resizer หรือเปล่า? (ถ้าใช่ ให้หยุดทันที)
-    if (e.target.classList.contains('resizer')) return;
-
-    const th = e.target.closest('.sortable');
-    if (th) {
-        changeSort(th.dataset.column);
-    }
-});
-
-// Start
-document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById("tableBody")) loadCustomers(1);
-    
-    // Event Search
-    const searchInput = document.getElementById("searchInput");
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
-                state.currentSearch = e.target.value.trim();
-                loadCustomers(1);
-            }, 400);
-        });
-    }
-});

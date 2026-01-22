@@ -242,40 +242,33 @@ export function initResizableTable() {
 export function updateHeaderUI(state) {
     const headers = document.querySelectorAll('.sortable');
     headers.forEach(th => {
-        // 1. ล้างสถานะเก่า
+        // 1. ล้างสถานะเก่าออกให้หมดก่อน
         delete th.dataset.order;
-        th.classList.remove('text-blue-600', 'dark:text-blue-400', 'bg-gray-50', 'dark:bg-white/5');
+        th.classList.remove('text-blue-600', 'dark:text-blue-400', 'bg-gray-50', 'dark:bg-white/5'); // ลบ Highlight
         
-        // 2. หา element ที่เก็บไอคอน (ถ้าไม่มีให้สร้างใหม่)
+        // 2. หา Container ของ Icon
         let iconContainer = th.querySelector('.sort-icon');
-        if (!iconContainer) {
-            // สร้าง div รอไว้สำหรับใส่ไอคอน
-            const div = th.querySelector('div'); // หา div ที่คลุม text อยู่
-            if (div) {
-                iconContainer = document.createElement('span');
-                iconContainer.className = 'sort-icon ml-1';
-                div.appendChild(iconContainer);
-            }
-        }
+        if (!iconContainer) return; // ถ้าหาไม่เจอให้ข้ามไป (กัน Error)
 
-        // 3. เช็คสถานะการ Sort ปัจจุบัน
+        // 3. เช็คว่าเป็นคอลัมน์ที่กำลัง Sort อยู่ไหม?
         const column = th.dataset.column;
         if (state.currentSort === column) {
+            // ✅ Active: ใส่สี + ไอคอนลูกศร
             th.dataset.order = state.currentOrder;
-            th.classList.add('text-blue-600', 'dark:text-blue-400', 'bg-gray-50', 'dark:bg-white/5'); // Highlight หัวตาราง
-
-            // 🔥 ใส่ Icon ของจริง (Lucide)
+            th.classList.add('text-blue-600', 'dark:text-blue-400', 'bg-gray-50', 'dark:bg-white/5');
+            
             if (state.currentOrder === 'ASC') {
                 iconContainer.innerHTML = `<i data-lucide="arrow-up" class="w-3.5 h-3.5 stroke-[2.5]"></i>`;
             } else {
                 iconContainer.innerHTML = `<i data-lucide="arrow-down" class="w-3.5 h-3.5 stroke-[2.5]"></i>`;
             }
         } else {
-            // ถ้าไม่ได้ Sort: แสดงไอคอนจางๆ หรือซ่อนไปเลยก็ได้ (Apple style มักจะซ่อน หรือโชว์ขีดเล็กๆ)
+            // ⚪ Inactive: กลับสู่สถานะปกติ (Icon จางๆ หรือซ่อน)
+            // ใช้ไอคอน Chevrons (ขึ้นลง) สีจางๆ เพื่อบอกว่า "กดได้นะ"
             iconContainer.innerHTML = `<i data-lucide="chevrons-up-down" class="w-3.5 h-3.5 text-gray-300 dark:text-gray-600 stroke-[2]"></i>`;
         }
     });
 
-    // 4. สั่ง render icon ใหม่ทันที
+    // 4. Render Icon ใหม่
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }

@@ -1,20 +1,18 @@
-/* assets/css/modules/table.css */
-
 /* =========================
    1. Table Structure
 ========================= */
 .table-container {
-    border-radius: 12px;
+    border-radius: 16px; /* มุมโค้งมากขึ้น */
     overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); /* เงานุ่มขึ้น */
     background: white;
-    border: 1px solid var(--border-light);
+    border: 1px solid rgba(229, 231, 235, 0.5); /* เส้นขอบบางจางๆ */
     position: relative;
-    min-height: 200px; /* กันตารางหดเวลาโหลด */
+    min-height: 200px;
 }
 .dark .table-container {
     background: #1c1c1e;
-    border-color: var(--border-dark);
+    border-color: rgba(255, 255, 255, 0.08);
 }
 
 table {
@@ -24,104 +22,126 @@ table {
 }
 
 /* =========================
-   2. Header & Cells
+   2. Header (ปรับโฉมใหม่: Slim & Clean)
 ========================= */
 th {
     position: sticky;
     top: 0;
-    background-color: #f9fafb !important;
-    color: #6b7280;
+    background-color: #ffffff !important; /* พื้นขาวคลีนๆ */
+    color: #64748b; /* สีเทาอมฟ้า (Slate-500) ดูทันสมัย */
     font-weight: 600;
-    font-size: var(--font-head);
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    padding: 0 16px !important; /* ใช้ padding ซ้ายขวา แล้วใช้ height คุมแนวตั้ง */
-    border-bottom: 1px solid var(--border-light);
+    font-size: 13px; /* ฟอนต์กำลังดี */
+    padding: 0 12px !important; /* ลด padding */
+    border-bottom: 1px solid #f1f5f9; /* เส้นแบ่งจางมาก */
     z-index: 20;
     white-space: nowrap;
     user-select: none;
-    height: 48px; /* 🔥 ล็อคความสูงหัวตาราง */
-}
-.dark th {
-    background-color: #27272a !important;
-    color: #a1a1a6;
-    border-bottom-color: var(--border-dark);
+    height: 42px; /* ✅ ลดความสูงลงจาก 48px เหลือ 42px */
+    transition: background-color 0.2s;
 }
 
-/* 🔥 จัด Layout หัวตารางใหม่ (Flexbox) */
+/* Dark Mode Header */
+.dark th {
+    background-color: #1c1c1e !important;
+    color: #9ca3af;
+    border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Flexbox จัดระเบียบใน th */
 th > div {
     display: flex !important;
     align-items: center !important;
-    justify-content: space-between !important; /* ดันข้อความซ้าย ไอคอนขวา */
+    justify-content: space-between !important;
     width: 100%;
     height: 100%;
-    gap: 8px;
+    gap: 6px;
 }
 
+/* =========================
+   3. Body Cells (สะอาดตา)
+========================= */
 td {
-    padding: 16px 16px !important;
-    border-bottom: 1px solid #f3f4f6;
-    color: var(--text-light);
-    font-size: var(--font-base);
+    padding: 12px 12px !important; /* ลดความสูงแถวลงนิดนึง */
+    border-bottom: 1px solid #f8fafc; /* เส้นแบ่งแทบมองไม่เห็น */
+    color: #334155; /* Slate-700 เข้มกำลังดี */
+    font-size: 14px;
     vertical-align: middle;
     white-space: nowrap;
     background-color: white;
-    transition: background-color 0.15s;
-}
-.dark td {
-    background-color: #1c1c1e;
-    border-bottom-color: rgba(255,255,255,0.05);
-    color: #e5e7eb;
+    transition: all 0.15s ease;
 }
 
-tbody tr:hover td { background-color: #f9fafb !important; }
-.dark tbody tr:hover td { background-color: #2c2c2e !important; }
+.dark td {
+    background-color: #1c1c1e;
+    border-bottom-color: rgba(255, 255, 255, 0.03);
+    color: #e2e8f0;
+}
+
+/* Hover Effect ที่นุ่มนวล */
+tbody tr:hover td {
+    background-color: #f8fafc !important; /* ฟ้าจางมากๆ */
+}
+.dark tbody tr:hover td {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+/* ตัดเส้นขอบล่างสุดออก */
 tbody tr:last-child td { border-bottom: none; }
 
 /* =========================
-   3. Features: Sort (ใช้ Icon จริงแล้ว ลบของเก่าทิ้ง)
+   4. Features: Sort (Minimalist)
 ========================= */
-th.sortable { cursor: pointer; transition: all 0.2s; }
+th.sortable { cursor: pointer; }
 
-/* จัดระเบียบกล่องไอคอน */
+/* เมื่อเอาเมาส์ชี้หัวตาราง ให้เปลี่ยนสีพื้นหลังนิดนึง */
+th.sortable:hover {
+    background-color: #f8fafc !important;
+    color: #0f172a; /* สีเข้มขึ้น */
+}
+.dark th.sortable:hover {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+    color: white;
+}
+
+/* ไอคอน Sort */
 .sort-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 20px;
-    height: 20px;
-    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 16px;
+    height: 16px;
+    opacity: 0.4; /* จางๆ ไว้ก่อน */
+    transition: all 0.2s;
+}
+
+/* Active Sort: สีชัด */
+th[data-order] .sort-icon {
+    opacity: 1;
+    color: var(--primary-blue);
+    transform: scale(1.1);
 }
 
 /* =========================
-   4. Loading Effect (แบบ Apple Style)
+   5. Loading Overlay (Glassmorphism)
 ========================= */
-/* Container ต้อง relative เพื่อให้ overlay เกาะได้ */
-.table-container {
-    position: relative; 
-    min-height: 300px; /* กันตารางหด */
-}
-
-/* สร้างม่านสีขาวจางๆ มาบังตาราง (Backdrop Blur) */
 .table-loading-overlay {
     position: absolute;
-    inset: 0; /* เต็มพื้นที่ */
-    background: rgba(255, 255, 255, 0.6); /* ขาวโปร่งแสง */
-    backdrop-filter: blur(2px); /* เบลอฉากหลัง */
+    inset: 0;
+    background: rgba(255, 255, 255, 0.75); /* ขาวขุ่นขึ้น */
+    backdrop-filter: blur(4px);
     z-index: 50;
     display: flex;
     align-items: center;
     justify-content: center;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.2s ease;
 }
 
 .dark .table-loading-overlay {
-    background: rgba(0, 0, 0, 0.6); /* ดำโปร่งแสงสำหรับ Dark Mode */
+    background: rgba(0, 0, 0, 0.7);
 }
 
-/* เมื่อมี Class active ให้โชว์ */
 .table-loading-overlay.active {
     opacity: 1;
     pointer-events: all;
