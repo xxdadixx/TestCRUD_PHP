@@ -45,9 +45,19 @@ async function loadCustomers(page = 1) {
     // 1. Loading State (แบบไม่กระพริบ)
     const hasData = tableBody.children.length > 0 && !tableBody.querySelector('td[colspan]');
     if (hasData) {
-        tableBody.classList.add('opacity-40', 'pointer-events-none');
+        tableBody.classList.add('table-loading');
     } else {
-        tableBody.innerHTML = `<tr><td colspan="11" class="h-96 text-center align-middle"><i data-lucide="loader-2" class="w-8 h-8 text-blue-500 animate-spin mx-auto"></i></td></tr>`;
+        // ถ้าไม่มีข้อมูลเลย ให้ขึ้น Spinner หมุนๆ
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="100%" class="h-64 text-center align-middle">
+                    <div class="flex flex-col items-center justify-center text-gray-400">
+                        <i data-lucide="loader-2" class="w-8 h-8 animate-spin mb-2 text-blue-500"></i>
+                        <span class="text-sm font-medium">Loading data...</span>
+                    </div>
+                </td>
+            </tr>
+        `;
         lucide.createIcons();
     }
 
@@ -90,7 +100,8 @@ async function loadCustomers(page = 1) {
         `;
         lucide.createIcons();
     } finally {
-        tableBody.classList.remove('opacity-40', 'pointer-events-none');
+        // ✅ 2. โหลดเสร็จ: เอาคลาสออก
+        tableBody.classList.remove('table-loading');
     }
 }
 

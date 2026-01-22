@@ -15,7 +15,9 @@ $BASE_URL = $baseDir === '/' ? '' : $baseDir;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customer Manager</title>
 
-    <script>window.APP_BASE_URL = "<?php echo $BASE_URL; ?>";</script>
+    <script>
+        window.APP_BASE_URL = "<?php echo $BASE_URL; ?>";
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -32,20 +34,36 @@ $BASE_URL = $baseDir === '/' ? '' : $baseDir;
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="<?= $BASE_URL ?>/assets/css/swal-dark.css">
-    <link rel="stylesheet" href="<?= $BASE_URL ?>/assets/css/table.css?v=<?= time() ?>">
+    <link rel="stylesheet" href="<?= $BASE_URL ?>/assets/css/main.css?v=<?= time() ?>">
     <script src="<?= $BASE_URL ?>/assets/js/theme.js"></script>
 
     <style>
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
-        .dark ::-webkit-scrollbar-thumb { background: #4b5563; }
-        ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 4px;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
     </style>
 </head>
 
 <body class="bg-[#f5f5f7] dark:bg-black text-[#1d1d1f] dark:text-[#f5f5f7] transition-colors duration-300 min-h-screen flex flex-col font-sans antialiased">
-    
+
     <div id="global-loader" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#f5f5f7]/80 dark:bg-[#000]/80 backdrop-blur-md transition-opacity duration-500">
         <div class="relative flex items-center justify-center">
             <i data-lucide="loader-2" class="w-12 h-12 text-gray-400 dark:text-gray-500 animate-spin"></i>
@@ -54,14 +72,21 @@ $BASE_URL = $baseDir === '/' ? '' : $baseDir;
     </div>
 
     <script>
-        window.showLoader = () => { const l = document.getElementById('global-loader'); if(l) l.classList.remove('opacity-0', 'pointer-events-none'); };
-        window.hideLoader = () => { const l = document.getElementById('global-loader'); if(l) l.classList.add('opacity-0', 'pointer-events-none'); };
+        window.showLoader = () => {
+            const l = document.getElementById('global-loader');
+            if (l) l.classList.remove('opacity-0', 'pointer-events-none');
+        };
+        window.hideLoader = () => {
+            const l = document.getElementById('global-loader');
+            if (l) l.classList.add('opacity-0', 'pointer-events-none');
+        };
         window.addEventListener('load', () => setTimeout(window.hideLoader, 600));
     </script>
 
     <nav class="sticky top-0 z-50 w-full border-b border-gray-200/50 dark:border-gray-800/50 bg-white/70 dark:bg-[#1c1c1e]/70 backdrop-blur-xl transition-all duration-300">
         <div class="w-full px-4 lg:px-8">
-            <div class="flex justify-between items-center h-16"> <div class="flex-shrink-0 flex items-center">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center">
                     <a href="<?= $BASE_URL ?>/index.php" class="flex items-center gap-3 group">
                         <div class="w-9 h-9 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-lg shadow-blue-500/20 flex items-center justify-center text-white group-hover:scale-105 transition-transform duration-300">
                             <i data-lucide="users" class="w-5 h-5"></i>
@@ -86,14 +111,14 @@ $BASE_URL = $baseDir === '/' ? '' : $baseDir;
                     <button id="toggleDark" class="p-2 rounded-full text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors">
                         <i data-lucide="moon" class="w-5 h-5"></i>
                     </button>
-                    
+
                     <div class="hidden sm:flex items-center gap-3 pl-3 border-l border-gray-200 dark:border-gray-700">
                         <div class="text-right">
                             <p class="text-xs font-semibold text-gray-900 dark:text-white">Admin</p>
                             <p class="text-[10px] text-gray-500">Super User</p>
                         </div>
                         <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center overflow-hidden border border-white dark:border-gray-600 shadow-sm">
-                             <i data-lucide="user" class="w-4 h-4 text-gray-500 dark:text-gray-300"></i>
+                            <i data-lucide="user" class="w-4 h-4 text-gray-500 dark:text-gray-300"></i>
                         </div>
                     </div>
 

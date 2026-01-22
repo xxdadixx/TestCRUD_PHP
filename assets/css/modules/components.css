@@ -1,0 +1,70 @@
+/* assets/css/modules/components.css */
+
+/* =========================================
+   2. COMPONENTS (Buttons & Badges)
+   ========================================= */
+
+/* --- Buttons (Reset & Base Style) --- */
+button {
+    font-family: inherit;
+    font-weight: 500;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    
+    /* 🔥 บังคับจัดกึ่งกลาง แก้ปุ่มเบี้ยว/ตกบรรทัด */
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    white-space: nowrap;
+}
+button:active { transform: scale(0.96); }
+
+/* Primary Button (Blue - Add) */
+.bg-blue-500 {
+    background-color: var(--primary-blue) !important;
+    color: white !important;
+    border-radius: 980px !important;
+    padding: 8px 20px !important;
+    box-shadow: 0 4px 6px rgba(0, 113, 227, 0.2);
+}
+.bg-blue-500:hover {
+    background-color: #0077ED !important;
+    box-shadow: 0 6px 10px rgba(0, 113, 227, 0.3);
+    transform: translateY(-1px);
+}
+
+/* Secondary Button (Green - Export) */
+/* 🔥 ต้องเขียนให้ละเอียดเท่าตัวบน ถึงจะไม่เพี้ยน */
+button.bg-green-600 {
+    background-color: var(--success-green) !important;
+    color: white !important;
+    border-radius: 980px !important;
+    padding: 8px 20px !important;
+    box-shadow: 0 4px 6px rgba(52, 199, 89, 0.2) !important;
+}
+button.bg-green-600:hover {
+    background-color: #30d158 !important;
+    box-shadow: 0 6px 10px rgba(52, 199, 89, 0.3) !important;
+    transform: translateY(-1px) scale(1.02) !important;
+}
+.dark button.bg-green-600 { color: white !important; }
+
+/* Status Badges */
+.status-pill {
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.status-active { background-color: #e8f5e9; color: #1b5e20; }
+.dark .status-active { background-color: rgba(52, 199, 89, 0.15); color: #4ade80; }
+.status-inactive { background-color: #ffebee; color: #b71c1c; }
+.dark .status-inactive { background-color: rgba(255, 69, 58, 0.15); color: #ff6b6b; }

@@ -70,9 +70,7 @@ if (file_exists($formatePath)) {
             <table id="customerTable" class="w-full text-left border-collapse">
                 <thead class="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
                     <tr class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">
-                        <th class="p-3 text-center w-16 text-gray-500 font-semibold">
-                            No.
-                        </th>
+                        <th class="p-3 text-center w-16 text-gray-500 font-semibold">No.</th>
                         <th class="p-3 text-left w-20 sortable group" data-column="customer_id">
                             <div class="flex items-center gap-1 cursor-pointer">
                                 ID <span class="sort-icon"></span>
@@ -88,7 +86,7 @@ if (file_exists($formatePath)) {
                             <div class="flex items-center gap-1 cursor-pointer">Gender <span class="sort-icon"></span></div>
                         </th>
                         <th class="p-3 text-left w-32 sortable group" data-column="date_of_birth">
-                            <div class="flex items-center gap-1 cursor-pointer">DOB <span class="sort-icon"></span></div>
+                            <div class="flex items-center gap-1 cursor-pointer">Date of Birth <span class="sort-icon"></span></div>
                         </th>
                         <th class="p-3 text-left w-[160px]">National ID</th>
                         <th class="p-3 text-center w-28 sortable group" data-column="status_name">
