@@ -10,6 +10,7 @@ $BASE_URL = $baseDir === '/' ? '' : $baseDir;
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -43,18 +44,64 @@ $BASE_URL = $baseDir === '/' ? '' : $baseDir;
     <script>
         window.APP_BASE_URL = "<?= $BASE_URL ?>";
     </script>
-    
+
     <style>
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
-        .dark ::-webkit-scrollbar-thumb { background: #4b5563; }
-        ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 4px;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
     </style>
 </head>
 
 <body class="bg-[#f5f5f7] dark:bg-black text-[#1d1d1f] dark:text-[#f5f5f7] transition-colors duration-300 min-h-screen flex flex-col font-sans antialiased">
+    <div id="global-loader" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#f5f5f7]/80 dark:bg-[#000]/80 backdrop-blur-md transition-opacity duration-500">
+        <div class="relative flex items-center justify-center">
+            <i data-lucide="loader-2" class="w-12 h-12 text-gray-400 dark:text-gray-500 animate-spin"></i>
 
+        </div>
+        <p class="mt-4 text-sm font-medium text-gray-500 dark:text-gray-400 tracking-wide animate-pulse">
+            Loading...
+        </p>
+    </div>
+
+    <script>
+        // ฟังก์ชันเรียกใช้ Loader จากที่ไหนก็ได้
+        window.showLoader = () => {
+            const loader = document.getElementById('global-loader');
+            if (loader) {
+                loader.classList.remove('opacity-0', 'pointer-events-none');
+            }
+        };
+
+        window.hideLoader = () => {
+            const loader = document.getElementById('global-loader');
+            if (loader) {
+                loader.classList.add('opacity-0', 'pointer-events-none');
+            }
+        };
+
+        // ซ่อนอัตโนมัติเมื่อเว็บโหลดเสร็จ
+        window.addEventListener('load', () => {
+            setTimeout(window.hideLoader, 600); // หน่วงนิดนึงให้ดูสมูท
+        });
+    </script>
     <nav class="sticky top-0 z-50 w-full border-b border-gray-200/50 dark:border-gray-800/50
                 bg-white/70 dark:bg-[#1c1c1e]/70 backdrop-blur-xl transition-all duration-300">
         <div class="w-full px-4 lg:px-8">
