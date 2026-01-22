@@ -5,10 +5,10 @@ import { highlightText } from './utils.js';
 ========================= */
 
 export function renderTable(customers, state, actions) {
-    // 🔥 เพิ่มบรรทัดนี้: ค้นหาตารางก่อนใช้งาน
+    // 🔥 ค้นหาตารางก่อนใช้งาน
     const tableBody = document.getElementById("tableBody");
     if (!tableBody) return;
-    
+
     // ต้องรับค่า state (เช่น currentSearch, currentSort) เข้ามาเป็น parameter แทนการใช้ global variable
     const { currentSort, currentSearch, currentPage } = state;
     const { onEdit, onDelete, onView } = actions;
@@ -243,6 +243,7 @@ export function initResizableTable() {
    UI HELPERS
 ========================= */
 export function updateHeaderUI(sortState) {
+    const { currentSort, currentOrder } = sortState;
     const activeClasses = ['bg-gray-100', 'dark:bg-white/10'];
 
     document.querySelectorAll('.sortable').forEach(th => {

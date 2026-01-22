@@ -1,14 +1,14 @@
-const nameRegex = /^[A-Za-zก-ฮ\s]{2,50}$/;
-const nationalIdRegex = /^\d{13}$/;
+export const nameRegex = /^[A-Za-zก-ฮ\s]{2,50}$/;
+export const nationalIdRegex = /^\d{13}$/;
 
 /* =========================
     Dark Mode
 ========================= */
-function isDarkMode() {
+export function isDarkMode() {
     return document.documentElement.classList.contains("dark");
 }
 
-function swalTheme() {
+export function swalTheme() {
     return isDarkMode()
         ? {
             background: "#1f2937", // gray-800
@@ -23,7 +23,7 @@ function swalTheme() {
 /* =========================
     RegExp ADD/EDIT
 ========================= */
-function formatNationalId(input) {
+export function formatNationalId(input) {
     let digits = input.value.replace(/\D/g, "").slice(0, 13);
 
     let formatted = "";
@@ -36,11 +36,12 @@ function formatNationalId(input) {
     input.value = formatted;
 }
 
-function formatNationalIdValue(id) {
+export function formatNationalIdValue(id) {
+    if (!id) return "";
     return id.replace(/^(\d)(\d{4})(\d{5})(\d{2})(\d)$/, "$1-$2-$3-$4-$5");
 }
 
-function allowNameOnly(input) {
+export function allowNameOnly(input) {
     input.value = input.value
         .replace(/[^A-Za-zก-ฮ\s]/g, "") // ตัดทุกอย่างที่ไม่ตรง RegExp
         .replace(/\s+/g, " ") // เว้นวรรคซ้ำ
@@ -51,7 +52,7 @@ function allowNameOnly(input) {
    HIGHLIGHT HELPER FUNCTION
    (เพิ่มฟังก์ชันนี้ไว้ล่างสุดของไฟล์ หรือที่กลุ่ม Helper)
 ========================= */
-function highlightText(text, search) {
+export function highlightText(text, search) {
     if (!text) return "";
     const str = String(text);
     if (!search) return str;

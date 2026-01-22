@@ -9,19 +9,23 @@
 /* =========================
    Sortable Table Headers
 ========================= */
+/* แก้ส่วน th หรือ .sortable */
+th.sortable {
+    position: relative;
+    /* เพื่อให้ resizer อ้างอิงได้ถูก */
+    cursor: pointer;
+}
+
+/* 🔥 เพิ่มส่วนนี้: ถ้าเมาส์กำลังอยู่บน Resizer ห้ามให้ th เปลี่ยน cursor */
+th.sortable:has(.resizer:hover) {
+    cursor: col-resize;
+}
+
 th.sortable,
 .sortable {
     cursor: pointer !important;
     user-select: none;
     /* Prevents text selection when clicking rapidly */
-    transition: background-color 0.15s ease-in-out;
-}
-
-/* Prevent children from blocking pointer events */
-th.sortable,
-.sortable {
-    cursor: pointer !important;
-    user-select: none;
     transition: background-color 0.15s ease-in-out;
 }
 
@@ -538,6 +542,30 @@ th {
     /* สำคัญ! เพื่อให้ Resizer เกาะติดอยู่ขวาของช่องตัวเอง */
 }
 
+.resizer {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 5px;
+    /* ลดความกว้างลงนิดนึง เพื่อไม่ให้กินพื้นที่ Sort มากไป */
+    background: transparent;
+    cursor: col-resize;
+    user-select: none;
+    touch-action: none;
+    z-index: 10;
+    /* ดันให้ลอยเหนือ th */
+}
+
+/* เพิ่มส่วนนี้: เมื่อเอาเมาส์ไปโดนเส้นขอบ ให้แสดงสีฟ้าชัดๆ และบังคับ Cursor */
+.resizer:hover,
+.resizing {
+    background: #3b82f6;
+    /* สีฟ้า */
+    cursor: col-resize !important;
+    /* 🔥 บังคับเลยว่าต้องเป็นลูกศรดึง */
+}
+
 th .resizer {
     position: absolute;
     top: 0;
@@ -606,17 +634,18 @@ div:where(.swal2-container) button:where(.swal2-styled).swal2-cancel {
 
 /* 🔥 1. ล็อค Scrollbar ขวาไม่ให้กระพริบ (หน้าจะไม่ขยับซ้ายขวาเวลาเปลี่ยนหน้า) */
 html {
-    overflow-y: scroll; 
+    overflow-y: scroll;
 }
 
 /* ป้องกันแสง Aurora หรือ Resizer ทำหน้าเกินขอบแนวนอน */
 body {
-    overflow-x: hidden; 
+    overflow-x: hidden;
 }
 
 /* --- การตั้งค่าตาราง (Hybrid Mode) --- */
 table {
-    table-layout: auto; /* เริ่มต้นเป็น Auto (JS จะแก้เป็น Fixed ตอนลาก) */
+    table-layout: auto;
+    /* เริ่มต้นเป็น Auto (JS จะแก้เป็น Fixed ตอนลาก) */
     width: auto;
     min-width: 100%;
     border-collapse: separate;
@@ -624,7 +653,8 @@ table {
 }
 
 /* ข้อความ: บรรทัดเดียว ห้ามตัด (โชว์เต็ม) */
-th, td {
+th,
+td {
     white-space: nowrap !important;
     overflow: visible !important;
     text-overflow: clip !important;
@@ -638,20 +668,25 @@ th .resizer {
     position: absolute;
     top: 0;
     right: 0;
-    width: 10px; /* พื้นที่จับ */
+    width: 10px;
+    /* พื้นที่จับ */
     height: 100%;
     cursor: col-resize;
     user-select: none;
     touch-action: none;
     z-index: 20;
-    transform: translateX(50%); /* ปกติให้ยื่นออกไปครึ่งนึงจะได้จับง่าย */
+    transform: translateX(50%);
+    /* ปกติให้ยื่นออกไปครึ่งนึงจะได้จับง่าย */
 }
 
 /* 🔥 2. เก็บงาน: คอลัมน์สุดท้าย ห้ามยื่นออกไปทางขวา (กัน Scrollbar เด้ง) */
 th:last-child .resizer {
-    transform: none !important; /* ยกเลิกการยื่น */
-    right: 0 !important;        /* ชิดขอบพอดี */
-    width: 5px;                 /* ลดขนาดพื้นที่จับลงนิดนึงกันล้น */
+    transform: none !important;
+    /* ยกเลิกการยื่น */
+    right: 0 !important;
+    /* ชิดขอบพอดี */
+    width: 5px;
+    /* ลดขนาดพื้นที่จับลงนิดนึงกันล้น */
 }
 
 /* สีตอนลาก */

@@ -11,13 +11,28 @@ if (empty($data['customer_id'])) {
 }
 
 try {
-    $pdo->beginTransaction(); // ✅ เริ่ม
+    $pdo->beginTransaction();
 
+    // ✅ 1. หาชื่อรูปก่อนลบ (ต้องทำก่อน DELETE ไม่งั้นหาไม่เจอ)
+    $stmtGet = $pdo->prepare("SELECT photo FROM customer WHERE customer_id = ?");
+    $stmtGet->execute([$data['customer_id']]);
+    $photoToDelete = $stmtGet->fetchColumn();
+
+    // 2. ลบข้อมูลใน DB
     $stmt = $pdo->prepare("DELETE FROM customer WHERE customer_id = ?");
     $stmt->execute([$data['customer_id']]);
 
     if ($stmt->rowCount() > 0) {
-        $pdo->commit(); // ✅ ยืนยันการลบ
+        $pdo->commit(); // ยืนยันการลบใน DB ก่อน
+
+        // ✅ 3. ถ้าลบใน DB สำเร็จ -> ค่อยไปลบไฟล์รูปจริงทิ้ง
+        if ($photoToDelete) {
+            $filePath = "../../photos/" . $photoToDelete;
+            if (file_exists($filePath)) {
+                unlink($filePath); // 🔥 คำสั่งลบไฟล์
+            }
+        }
+
         echo json_encode(["status" => "success", "message" => "Customer deleted successfully"]);
     } else {
         $pdo->rollBack();

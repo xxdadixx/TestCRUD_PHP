@@ -10,23 +10,37 @@ if (!isset($_FILES['photo']) || !isset($_POST['customer_id'])) {
 
 $customerId = $_POST['customer_id'];
 $file = $_FILES['photo'];
-
-// สร้างโฟลเดอร์ถ้ายังไม่มี
 $targetDir = "../../photos/";
+
 if (!file_exists($targetDir)) { mkdir($targetDir, 0777, true); }
 
 $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
 $newFilename = "cus_" . $customerId . "_" . time() . "." . $ext;
 $targetFile = $targetDir . $newFilename;
 
+// ✅ 1. หาชื่อรูปเก่าเตรียมไว้ก่อน
+$stmtGet = $pdo->prepare("SELECT photo FROM customer WHERE customer_id = ?");
+$stmtGet->execute([$customerId]);
+$oldPhoto = $stmtGet->fetchColumn();
+
 if (move_uploaded_file($file['tmp_name'], $targetFile)) {
     try {
-        $pdo->beginTransaction(); // ✅ เริ่ม
+        $pdo->beginTransaction();
 
+        // อัปเดตชื่อรูปใหม่
         $stmt = $pdo->prepare("UPDATE customer SET photo = :photo WHERE customer_id = :id");
         $stmt->execute([':photo' => $newFilename, ':id' => $customerId]);
 
-        $pdo->commit(); // ✅ ยืนยันการอัปเดตชื่อรูป
+        $pdo->commit();
+
+        // ✅ 2. ถ้าอัปเดตสำเร็จ -> ลบรูปเก่าทิ้ง (เพื่อไม่ให้รก)
+        if ($oldPhoto && $oldPhoto !== $newFilename) {
+            $oldFilePath = $targetDir . $oldPhoto;
+            if (file_exists($oldFilePath)) {
+                unlink($oldFilePath); // 🔥 คำสั่งลบไฟล์
+            }
+        }
+
         echo json_encode(['status' => 'success', 'message' => 'Photo uploaded']);
     } catch (Exception $e) {
         if ($pdo->inTransaction()) $pdo->rollBack();

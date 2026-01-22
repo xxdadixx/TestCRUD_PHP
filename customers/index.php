@@ -60,9 +60,13 @@ if (file_exists($formatePath)) {
             <table class="min-w-full">
                 <thead class="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
                     <tr class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">
-                        <th class="p-3 text-center w-16">No.</th>
-                        <th class="p-3 text-center w-20 sortable group" data-column="customer_id">
-                            <div class="flex items-center justify-center gap-1 cursor-pointer">ID <span class="sort-icon"></span></div>
+                        <th class="p-3 text-center w-16 text-gray-500 font-semibold">
+                            No.
+                        </th>
+                        <th class="p-3 text-left w-20 sortable group" data-column="customer_id">
+                            <div class="flex items-center gap-1 cursor-pointer">
+                                ID <span class="sort-icon"></span>
+                            </div>
                         </th>
                         <th class="p-3 text-left w-[140px] sortable group" data-column="customer_code">
                             <div class="flex items-center gap-1 cursor-pointer">Code <span class="sort-icon"></span></div>
@@ -95,9 +99,6 @@ if (file_exists($formatePath)) {
     </div>
     <div id="pagination" class="flex justify-center mt-4 mb-4"></div>
 </div>
-
-<script src="<?= $BASE_URL ?>/assets/js/api.js"></script>
-<script src="<?= $BASE_URL ?>/assets/js/customer.js?v=<?= time() ?>"></script>
 
 <script>
     lucide.createIcons();

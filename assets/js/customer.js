@@ -4,6 +4,24 @@ import { CustomerService } from './modules/api-service.js';
 import * as TableUI from './modules/table-ui.js';
 import * as Forms from './modules/forms.js';
 
+window.formatNationalId = Utils.formatNationalId;
+window.formatNationalIdValue = Utils.formatNationalIdValue;
+window.allowNameOnly = Utils.allowNameOnly;
+window.previewImageAdd = window.previewImageAdd || function (input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => document.getElementById('preview_img_add').src = e.target.result;
+        reader.readAsDataURL(input.files[0]);
+    }
+};
+window.previewImage = window.previewImage || function (input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => document.getElementById('preview_img').src = e.target.result;
+        reader.readAsDataURL(input.files[0]);
+    }
+};
+
 // --- State ---
 let state = {
     currentPage: 1,
@@ -16,7 +34,7 @@ let debounceTimer = null;
 // --- Main Function ---
 async function loadCustomers(page = 1) {
     const tableBody = document.getElementById("tableBody");
-    if (!tableBody) return; // ถ้าไม่มีตาราง (เช่นหน้า Edit) ให้หยุด
+    if (!tableBody) return; // ถ้าไม่มีตาราง (เช่นหน้า Edit) ให้หยุดทำงาน
 
     state.currentPage = page;
     TableUI.updateHeaderUI(state); // อัปเดตลูกศร Sort
@@ -43,18 +61,31 @@ async function loadCustomers(page = 1) {
         // 3. Fetch Data
         const data = await CustomerService.getAll(params.toString());
 
-        // 4. Render UI
-        TableUI.renderTable(data.customers, state, {
-            onEdit: (id) => Forms.openEditCustomer(id, () => loadCustomers(state.currentPage)),
-            onDelete: (id) => Forms.confirmDelete(id, () => loadCustomers(state.currentPage)),
-            onView: (id) => Forms.openViewCustomer(id)
-        });
+        if (data.status === 'error') {
+            throw new Error(data.message);
+        }
 
+        // 4. Render UI
+        TableUI.renderTable(data.customers, state, {});
         TableUI.renderPagination(data.page, data.totalPages, loadCustomers);
 
     } catch (err) {
         console.error(err);
-        tableBody.innerHTML = `<tr><td colspan="11" class="p-6 text-center text-red-500">Failed to load data</td></tr>`;
+        // 🔥 โชว์ Error ที่แท้จริง (err.message)
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="11" class="p-6 text-center text-red-500 bg-red-50 dark:bg-red-900/10">
+                    <div class="flex flex-col items-center gap-2">
+                        <i data-lucide="alert-circle" class="w-6 h-6"></i>
+                        <span class="font-bold">Error Loading Data</span>
+                        <span class="text-sm font-mono bg-white dark:bg-black px-2 py-1 rounded border border-red-200 dark:border-red-800">
+                            ${err.message}
+                        </span>
+                    </div>
+                </td>
+            </tr>
+        `;
+        lucide.createIcons();
     } finally {
         tableBody.classList.remove('opacity-40', 'pointer-events-none');
     }
@@ -72,13 +103,55 @@ if (searchInput) {
     });
 }
 
-// Global functions for HTML access
+// 1. ปุ่ม Add
 window.openAddCustomer = () => Forms.openAddCustomer(() => loadCustomers(1));
-window.loadCustomers = loadCustomers; // เผื่อปุ่ม Pagination เรียก
+
+// 2. ปุ่ม Edit (ส่ง id ไป และสั่งให้โหลดหน้าเดิมเมื่อเสร็จ)
+window.openEditCustomer = (id) => Forms.openEditCustomer(id, () => loadCustomers(state.currentPage));
+
+// 3. ปุ่ม Delete
+window.confirmDelete = (id) => Forms.confirmDelete(id, () => loadCustomers(state.currentPage));
+
+// 4. ปุ่ม View (คลิกที่แถว)
+window.openViewCustomer = (id) => Forms.openViewCustomer(id);
+
+// 5. อื่นๆ ที่จำเป็น
+window.loadCustomers = loadCustomers;
+
+/* =========================
+   CHANGE SORT (3 Steps: ASC -> DESC -> RESET)
+========================= */
+function changeSort(column) {
+    if (state.currentSort === column) {
+        // ถ้ากดคอลัมน์เดิม
+        if (state.currentOrder === 'ASC') {
+            // จังหวะ 2: เปลี่ยนเป็น DESC
+            state.currentOrder = 'DESC';
+        } else {
+            // จังหวะ 3: ยกเลิกการ Sort (Reset)
+            state.currentSort = ''; // ล้างค่า Sort
+            state.currentOrder = 'ASC'; // กลับเป็นค่า Default
+        }
+    } else {
+        // จังหวะ 1: กดคอลัมน์ใหม่ เริ่มที่ ASC
+        state.currentSort = column;
+        state.currentOrder = 'ASC';
+    }
+    
+    // โหลดข้อมูลใหม่
+    loadCustomers(1);
+}
+
+// ผูก Event Click ให้กับทุกปุ่ม Sort
+document.addEventListener('click', (e) => {
+    const th = e.target.closest('.sortable');
+    if (th) {
+        changeSort(th.dataset.column);
+    }
+});
 
 // Start
 document.addEventListener('DOMContentLoaded', () => {
-    // เช็คก่อนว่าอยู่หน้าที่มีตารางไหม
     if (document.getElementById("tableBody")) {
         loadCustomers(1);
     }
