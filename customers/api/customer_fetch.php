@@ -2,8 +2,6 @@
 // ปิด Error Report ชั่วคราวเพื่อให้ JSON ไม่พัง
 error_reporting(0);
 require __DIR__ . "/../../config/database.php";
-require __DIR__ . "/table_sort.php";
-require __DIR__ . "/formate.php";
 
 header('Content-Type: application/json');
 
@@ -61,7 +59,7 @@ if ($search !== '') {
 $sql = "
     SELECT c.*, s.status_name
     FROM customer c
-    JOIN customer_status s ON c.status_id = s.status_id
+    LEFT JOIN customer_status s ON c.status_id = s.status_id
     $whereSql 
     ORDER BY $sort $order
     LIMIT :limit OFFSET :offset
@@ -82,7 +80,7 @@ try {
     $countSql = "
         SELECT COUNT(*)
         FROM customer c
-        JOIN customer_status s ON c.status_id = s.status_id
+        LEFT JOIN customer_status s ON c.status_id = s.status_id
         $whereSql
     ";
 
@@ -109,7 +107,7 @@ foreach ($rows as $c) {
         'gender'        => $c['gender'],
         'date_of_birth' => $c['date_of_birth'],
         'national_id'   => formatNationalId($c['national_id']),
-        'status_name'   => $c['status_name'],
+        'status_name'   => $c['status_name'] ?? 'Unknown', // ป้องกันค่า Null
         'create_at'     => $c['create_at'],
         'update_at'     => $c['update_at'],
     ];
@@ -131,3 +129,14 @@ echo json_encode([
         'sql_count'   => $countSql     // ดูหน้าตา SQL ที่รันจริง
     ]
 ]);
+
+/* =========================
+   HELPER FUNCTIONS
+========================= */
+function formatNationalId($id) {
+    if (!$id) return '';
+    // ลบขีดออกก่อน (ถ้ามี) แล้วจัดรูปแบบใหม่
+    $clean = preg_replace('/\D/', '', $id);
+    if (strlen($clean) !== 13) return $id; // ถ้าไม่ใช่ 13 หลัก ให้คืนค่าเดิม
+    return preg_replace("/^(\d{1})(\d{4})(\d{5})(\d{2})(\d{1})$/", "$1-$2-$3-$4-$5", $clean);
+}

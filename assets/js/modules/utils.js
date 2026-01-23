@@ -53,7 +53,7 @@ export function allowNameOnly(input) {
    (เพิ่มฟังก์ชันนี้ไว้ล่างสุดของไฟล์ หรือที่กลุ่ม Helper)
 ========================= */
 export function highlightText(text, search) {
-    if (!text) return "";
+    if (text === null || text === undefined) return "";
     const str = String(text);
     if (!search) return str;
     const terms = search.trim().split(/\s+/).filter(Boolean);

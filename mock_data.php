@@ -17,6 +17,38 @@ if (!file_exists($photosDir)) mkdir($photosDir, 0777, true);
 echo "<h2>🚀 Starting Mock Data Generation ($LIMIT records)...</h2><hr>";
 
 try {
+    // 0. สร้างตารางถ้ายังไม่มี (ป้องกัน Error Table doesn't exist)
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS customer_status (
+            status_id INT PRIMARY KEY AUTO_INCREMENT,
+            status_name VARCHAR(50) NOT NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ");
+
+    // เช็คว่ามี Status หรือยัง ถ้าไม่มีให้เพิ่ม
+    $stmtStatus = $pdo->query("SELECT COUNT(*) FROM customer_status");
+    if ($stmtStatus->fetchColumn() == 0) {
+        $pdo->exec("INSERT INTO customer_status (status_id, status_name) VALUES (1, 'Active'), (2, 'Inactive')");
+        echo "<p>✅ Created default statuses.</p>";
+    }
+
+    // สร้างตาราง Customer (ถ้ายังไม่มี)
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS customer (
+            customer_id INT PRIMARY KEY AUTO_INCREMENT,
+            customer_code VARCHAR(20),
+            first_name VARCHAR(100),
+            last_name VARCHAR(100),
+            gender VARCHAR(20),
+            date_of_birth DATE,
+            national_id VARCHAR(20),
+            status_id INT,
+            photo VARCHAR(255),
+            create_at DATETIME,
+            update_at DATETIME
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ");
+
     $pdo->beginTransaction();
 
     // เตรียม SQL Insert
